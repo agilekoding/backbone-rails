@@ -1,0 +1,17 @@
+%h1 Listing <%= plural_table_name %>
+
+%table#<%= plural_name %>-table
+  %thead
+    %tr
+<% attributes.each do |attribute| -%>
+      %th <%= attribute.human_name %>
+<% end -%>
+      %th
+      %th
+      %th
+
+  %tbody
+
+%br
+
+= link_to "New <%= human_name %>", "#/new"

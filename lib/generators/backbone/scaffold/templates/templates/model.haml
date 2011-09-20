@@ -1,0 +1,7 @@
+<% attributes.each do |attribute| -%>
+%td <%%= <%= attribute.name %> %>
+<% end -%>
+
+%td= link_to "Show", "#/<%%= id %>"
+%td= link_to "Edit", "#/<%%= id %>/edit"
+%td= link_to "Destroy", "#/<%%= id %>/destroy", :class => "destroy"

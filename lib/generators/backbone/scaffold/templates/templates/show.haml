@@ -1,9 +1,7 @@
 <% attributes.each do |attribute| -%>
-<p>
-  <b><%= attribute.human_name %>:</b>
+%p
+  %strong <%= attribute.human_name %>:
   <%%= <%= attribute.name %> %>
-</p>
-
 <% end -%>
 
-<a href="#/index">Back</a>
+= link_to "Back", "#/index"
