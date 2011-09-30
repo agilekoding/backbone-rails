@@ -18,6 +18,14 @@ module Backbone
         [js_app_name, "Models", class_name].join(".")
       end
 
+      def classify_model_name
+        singular_name.classify
+      end
+
+      def human_attribute_translate(name)
+        "#{classify_model_name}.human_attribute_name(:#{name})"
+      end
+
       def singular_model_name
         uncapitalize singular_name.camelize
       end

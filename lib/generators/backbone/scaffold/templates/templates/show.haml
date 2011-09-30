@@ -1,7 +1,27 @@
+.row
+  .page-header
+    %h1= t(".title")
+
+.row
+  .span16.columns
+    %ul.tabs
+      %li
+        = link_to t("links.back"), "#/index"
+
+.row
+  .span10.columns
 <% attributes.each do |attribute| -%>
-%p
-  %strong <%= attribute.human_name %>:
-  ${<%= attribute.name %>}
+    %p
+      %strong <%= attribute.human_name %>:
+      ${<%= attribute.name %>}
+
 <% end -%>
 
-= link_to t("links.back"), "#/index"
+  .span6.columns
+    .dashboard
+      .page-header
+        %h3
+      %p
+
+
+

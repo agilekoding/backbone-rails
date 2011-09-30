@@ -1,5 +1,11 @@
-%h1 Edit <%= singular_table_name %>
+.row
+  .page-header
+    %h1= t(".title", :name => @<%= singular_model_name %>)
+
+.row
+  .span16.columns
+    %ul.tabs
+      %li
+        = link_to t("links.back"), "#/index"
 
 = render :partial => "form", :locals => { :form_id => "edit-<%= singular_table_name %>" }
-
-= link_to t("links.back"), "#/index"
