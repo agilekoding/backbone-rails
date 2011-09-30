@@ -19,7 +19,7 @@ module Backbone
       end
 
       def classify_model_name
-        singular_name.classify
+        singular_model_name.camelize
       end
 
       def human_attribute_translate(name)
