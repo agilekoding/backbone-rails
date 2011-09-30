@@ -8,7 +8,7 @@ class <%= router_namespace %>Router extends Backbone.Router
 
 <% actions.each do |action| -%>
   <%= action %>: ->
-    @view = new <%= "#{view_namespace}.#{action.camelize}View()" %>
-    $("#<%= plural_name %>").html(@view.render().el)
+    @<%= action %>_view = new <%= "#{view_namespace}.#{action.camelize}View()" %>
+    $("#<%= plural_name %>").html(@<%= action %>_view.render().el)
 
 <% end -%>

@@ -1,7 +1,7 @@
 <%= view_namespace %> ||= {}
 
 class <%= view_namespace %>.ShowView extends Backbone.View
-  template: JST["<%= jst 'show' %>"]
+  template: (data) -> $("#<%= tmpl 'show' %>").tmpl(data)
 
   render: ->
     $(this.el).html(@template(@model.toJSON() ))

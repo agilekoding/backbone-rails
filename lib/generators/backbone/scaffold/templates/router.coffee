@@ -11,21 +11,21 @@ class <%= router_namespace %>Router extends Backbone.Router
     ".*"        : "index"
 
   new<%= class_name %>: ->
-    @view = new <%= "#{view_namespace}.NewView(collection: @#{plural_name})" %>
-    $("#<%= plural_name %>").html(@view.render().el)
+    @new_view = new <%= "#{view_namespace}.NewView(collection: @#{plural_name})" %>
+    $("#<%= plural_name %>").html(@new_view.render().el)
 
   index: ->
-    @view = new <%= "#{view_namespace}.IndexView(#{plural_name}: @#{plural_name})" %>
-    $("#<%= plural_name %>").html(@view.render().el)
+    @index_view = new <%= "#{view_namespace}.IndexView(#{plural_name}: @#{plural_name})" %>
+    $("#<%= plural_name %>").html(@index_view.render().el)
 
   show: (id) ->
     <%= singular_name %> = @<%= plural_name %>.get(id)
 
-    @view = new <%= "#{view_namespace}.ShowView(model: #{singular_name})" %>
-    $("#<%= plural_name %>").html(@view.render().el)
+    @show_view = new <%= "#{view_namespace}.ShowView(model: #{singular_name})" %>
+    $("#<%= plural_name %>").html(@show_view.render().el)
 
   edit: (id) ->
     <%= singular_name %> = @<%= plural_name %>.get(id)
 
-    @view = new <%= "#{view_namespace}.EditView(model: #{singular_name})" %>
-    $("#<%= plural_name %>").html(@view.render().el)
+    @edit_view = new <%= "#{view_namespace}.EditView(model: #{singular_name})" %>
+    $("#<%= plural_name %>").html(@edit_view.render().el)

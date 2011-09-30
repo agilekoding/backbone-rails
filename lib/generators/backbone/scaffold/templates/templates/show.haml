@@ -1,7 +1,7 @@
 <% attributes.each do |attribute| -%>
 %p
   %strong <%= attribute.human_name %>:
-  <%%= <%= attribute.name %> %>
+  ${<%= attribute.name %>}
 <% end -%>
 
-= link_to "Back", "#/index"
+= link_to t("links.back"), "#/index"

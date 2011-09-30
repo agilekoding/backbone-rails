@@ -1,7 +1,7 @@
 <%= view_namespace %> ||= {}
 
 class <%= view_namespace %>.IndexView extends Backbone.View
-  template: JST["<%= jst 'index' %>"]
+  template: (data) -> $("#<%= tmpl 'index' %>").tmpl(data)
 
   initialize: () ->
     _.bindAll(this, 'addOne', 'addAll', 'render')

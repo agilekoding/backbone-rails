@@ -1,0 +1,10 @@
+= form_for :<%= singular_table_name %>, :url => "", :html => { :id => "edit-<%= singular_table_name %>" } do |f|
+
+<% attributes.each do |attribute| -%>
+  .field
+    = f.label :<%= attribute.name %>
+    = f.text_field :<%= attribute.name %>, :value => "${<%= attribute.name %>}"
+<% end -%>
+
+  .actions
+    = f.submit

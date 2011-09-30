@@ -1,14 +1,5 @@
 %h1 New <%= singular_table_name %>
 
-%form#new-<%= singular_table_name %>{:name => "<%= singular_table_name %>"}
+= render "form"
 
-<% attributes.each do |attribute| -%>
-  .field
-    %label{:for => "<%= attribute.name %>"} <%= attribute.name %>:
-    = text_field_tag "<%= attribute.name %>", "<%%= <%= attribute.name %> %>".html_safe
-<% end -%>
-
-  .actions
-    %input{:type => "submit", :value => "Create <%= human_name %>"}
-
-= link_to "Back", "#/index"
+= link_to t("links.back"), "#/index"

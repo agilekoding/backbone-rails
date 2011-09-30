@@ -1,7 +1,7 @@
 <%= view_namespace %> ||= {}
 
 class <%= view_namespace %>.EditView extends Backbone.View
-  template : JST["<%= jst 'edit' %>"]
+  template: (data) -> $("#<%= tmpl 'edit' %>").tmpl(data)
 
   events :
     "submit #edit-<%= singular_name %>" : "update"

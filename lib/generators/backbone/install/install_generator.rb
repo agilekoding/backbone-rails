@@ -14,14 +14,14 @@ module Backbone
 
       def inject_backbone
         inject_into_file "app/assets/javascripts/application.js", :before => "//= require_tree" do
-          files <<-EOF
-          //= require jquery.tmpl\n
-          //= require underscore\n
-          //= require backbone\n
-          //= require backbone_rails_sync\n
-          //= require backbone_datalink\n
-          //= require backbone/#{application_name.underscore}\n"
-          EOF
+          [
+            "//= require jquery.tmpl",
+            "//= require underscore",
+            "//= require backbone",
+            "//= require backbone_rails_sync",
+            "//= require backbone_datalink",
+            "//= require backbone/#{application_name.underscore}"
+          ].join("\n")
         end
       end
 
