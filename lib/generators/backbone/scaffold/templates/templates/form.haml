@@ -1,4 +1,4 @@
-= form_for :<%= singular_table_name %>, :url => "", :html => { :id => "edit-<%= singular_table_name %>" } do |f|
+= form_for :<%= singular_table_name %>, :url => "", :html => { :id => form_id } do |f|
 
 <% attributes.each do |attribute| -%>
   .field
