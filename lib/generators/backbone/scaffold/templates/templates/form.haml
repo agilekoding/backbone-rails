@@ -1,6 +1,6 @@
 .row
   .span16.columns
-    = form_for :<%= singular_table_name %>, :url => "", :html => { :id => form_id } do |f|
+    = form_for <%= classify_model_name %>.new, :url => "", :html => { :id => form_id } do |f|
       %fieldset
 <% attributes.each do |attribute| -%>
         .clearfix
