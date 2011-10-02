@@ -1,8 +1,9 @@
 .row
-  .page-header
-    %h1
-      = t(".title")
-      ${<%= attributes.first.try(:name) %>}
+  .span16.columns
+    .page-header
+      %h1
+        = t(".title")
+        ${<%= attributes.first.try(:name) %>}
 
 .row
   .span16.columns
