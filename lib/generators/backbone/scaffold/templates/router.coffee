@@ -15,6 +15,7 @@ class <%= router_namespace %>Router extends Backbone.Router
     $("#<%= plural_name %>").html(@new_view.render().el)
 
   index: ->
+    @index_view.remove() if @index_view?
     @index_view = new <%= "#{view_namespace}.IndexView(#{plural_name}: @#{plural_name})" %>
     $("#<%= plural_name %>").html(@index_view.render().el)
 

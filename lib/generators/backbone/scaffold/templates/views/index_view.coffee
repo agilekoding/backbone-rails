@@ -20,3 +20,7 @@ class <%= view_namespace %>.IndexView extends Backbone.View
     @addAll()
 
     return this
+
+  remove: ->
+    @options.<%= plural_model_name %>.unbind('reset', @addAll)
+    super()
