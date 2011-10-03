@@ -13,7 +13,7 @@
   .span10.columns
 <% attributes.each do |attribute| -%>
     %p
-      %strong <%= attribute.human_name %>:
+      %strong= <%= human_attribute_translate(attribute.name) %>
       ${<%= attribute.name %>}
 
 <% end -%>
