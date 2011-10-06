@@ -63,6 +63,10 @@ module Backbone
         template "base_model.coffee", "app/assets/javascripts/backbone/models/base_model.js.coffee"
       end
 
+      def create_base_view_file
+        template "base_view.coffee", "app/assets/javascripts/backbone/views/base_view.js.coffee"
+      end
+
     end
   end
 end
