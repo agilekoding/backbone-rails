@@ -1,5 +1,5 @@
 class <%= model_namespace %> extends <%= js_app_name %>.Models.BaseModel
-  paramRoot: '<%= singular_table_name %>'
+  paramRoot: '<%= singular_name %>'
 
   defaults:
 <% attributes.each do |attribute| -%>
