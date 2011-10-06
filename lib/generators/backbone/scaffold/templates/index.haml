@@ -2,7 +2,7 @@
 
 :javascript
   $(function() {
-    window.router = new <%= router_namespace %>Router({ <%= plural_name %>: #{ @<%= plural_name %>.to_json.html_safe } });
+    window.router = new <%= router_namespace %>Router({ <%= plural_model_name %>: #{ @<%= plural_name %>.to_json.html_safe } });
     Backbone.history.start();
   });
 

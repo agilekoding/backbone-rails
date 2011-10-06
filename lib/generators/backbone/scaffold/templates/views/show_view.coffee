@@ -1,8 +1,16 @@
 <%= view_namespace %> ||= {}
 
-class <%= view_namespace %>.ShowView extends Backbone.View
+class <%= view_namespace %>.ShowView extends <%= js_app_name %>.Views.BaseView
   template: (data) -> $("#<%= tmpl 'show' %>").tmpl(data)
 
+  events:
+    _.extend( _.clone(@__super__.events),
+      {}
+    )
+
   render: ->
-    $(this.el).html(@template(@model.toJSON() ))
+    $(@el).html( @template( @model.toJSON() ) )
     return this
+
+  destroy: (e) ->
+    super(e, success: () -> window.location.hash = "")

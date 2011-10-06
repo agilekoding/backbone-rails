@@ -1,12 +1,16 @@
 <%= view_namespace %> ||= {}
 
-class <%= view_namespace %>.IndexView extends Backbone.View
+class <%= view_namespace %>.IndexView extends <%= js_app_name %>.Views.BaseView
   template: (data) -> $("#<%= tmpl 'index' %>").tmpl(data)
 
   initialize: () ->
     _.bindAll(this, 'addOne', 'addAll', 'render')
-
     @options.<%= plural_model_name %>.bind('reset', @addAll)
+
+  events:
+    _.extend( _.clone(@__super__.events),
+     {}
+    )
 
   addAll: () ->
     @options.<%= plural_model_name %>.each(@addOne)

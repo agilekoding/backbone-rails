@@ -1,19 +1,15 @@
 <%= view_namespace %> ||= {}
 
-class <%= view_namespace %>.<%= singular_name.camelize %>View extends Backbone.View
+class <%= view_namespace %>.<%= singular_name.camelize %>View extends <%= js_app_name%>.Views.BaseView
   template: (data) -> $("#<%= tmpl singular_name %>").tmpl(data)
-
-  events:
-    "click .destroy" : "destroy"
 
   tagName: "tr"
 
-  destroy: () ->
-    @model.destroy()
-    this.remove()
-
-    return false
+  events:
+    _.extend( _.clone(@__super__.events),
+     {}
+    )
 
   render: ->
-    $(this.el).html(@template(@model.toJSON() ))
+    $(@el).html( @template( @model.toJSON() ) )
     return this
