@@ -10,10 +10,10 @@ class <%= view_namespace %>.NewView extends <%= js_app_name %>.Views.BaseView
 
   events:
     _.extend( _.clone(@__super__.events),
-      "submit #new-<%= singular_name %>": "save"
+      "submit #new_<%= singular_name %>": "save"
     )
 
   render: ->
     $(@el).html( @template( @model.toJSON() ) )
-    this.$("form#new-<%= singular_name %>").backboneLink(@model)
+    this.$("form#new_<%= singular_name %>").backboneLink(@model)
     return this
