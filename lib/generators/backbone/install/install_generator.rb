@@ -55,6 +55,10 @@ module Backbone
         template "app.coffee", "app/assets/javascripts/backbone/#{application_name.underscore}.js.coffee"
       end
 
+      def create_helpers_file
+        template "helpers.coffee", "app/assets/javascripts/backbone/helpers.js.coffee"
+      end
+
       def create_base_model_file
         template "base_model.coffee", "app/assets/javascripts/backbone/models/base_model.js.coffee"
       end
