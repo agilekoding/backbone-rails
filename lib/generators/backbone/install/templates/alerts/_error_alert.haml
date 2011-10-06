@@ -1,0 +1,7 @@
+.alert-message.error
+  %a.close{:href =>"#"} x
+
+  {{each errors}}
+  %p
+    %strong ${name} ${message}
+  {{/each}}
