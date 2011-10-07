@@ -56,3 +56,4 @@
     accepted: "debe ser aceptado"
     even: "debe ser un número par"
     odd: "debe ser un número non"
+    invalid_email: "no es una dirección de correo electrónico válida"
