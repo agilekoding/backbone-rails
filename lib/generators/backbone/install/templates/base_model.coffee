@@ -1,5 +1,24 @@
 class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
+  initialize: () ->
+    _.each(@hasMany,
+      (relation) =>
+        @[relation.key] = new <%= js_app_name %>.Collections[relation.collection]
+        @[relation.key].url = "#{@[relation.key].url}/#{@id}/#{relation.key}"
+        @[relation.key].reset @attributes[relation.key] if @attributes[relation.key]?
+    )
+
+  toJSON: () ->
+    json = @attributes
+    json["#{@paramRoot}_cid"] = "backboneCid_#{@cid}" if @includeCidInJson
+    _.each(@hasMany,
+      (relation) =>
+        json["#{relation.key}_attributes"] = @[relation.key].toJSON() if @[relation.key]?
+        delete json[relation.key] if json[relation.key]?
+    )
+    json
+
+
   validates: (attrs, validates = {}) ->
     resultMessage = {}
     messages = <%= js_app_name %>.Helpers.errorsMessages
@@ -42,3 +61,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   isValid: () ->
     if @validate(@attributes)? then false else true
+
+  includeCidInJson: false
+
+  hasMany: []
