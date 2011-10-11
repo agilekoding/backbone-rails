@@ -1,5 +1,15 @@
 (function($) {
 
+  function setSelectedValueForInput(container, el, value){
+    if ( el.is("select") )
+      el.find("option[value="+value+"]").attr('selected', true);
+
+    if ( el.is("input:radio") ){
+      var radioName = el.attr("name");
+      container.find("input[name="+radioName+"][value="+value+"]:radio").attr('checked', true);
+    }
+  }
+
   function setValues(el, model){
     var attrs = {};
     var nestedName = el.attr("name");
@@ -27,10 +37,18 @@
 
   return $.extend($.fn, {
     backboneLink: function(model) {
-      $(this).find(":input").each(function() {
-        var el, name;
-        el = $(this);
-        name = el.attr("name");
+      var container = $(this);
+      container.find(":input").each(function() {
+        var el, name, nestedName, nesteds;
+        el         = $(this);
+        nestedName = el.attr("name");
+        nesteds    = nestedName.split("[")
+
+        for(var i in nesteds) nesteds[i] = nesteds[i].replace("]", "")
+        name = nesteds[nesteds.length-1];
+
+        setSelectedValueForInput(container, el, model.get(name));
+
         model.bind("change:" + name, function() {
           return el.val(model.get(name));
         });
