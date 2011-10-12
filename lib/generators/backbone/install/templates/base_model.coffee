@@ -4,7 +4,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     _.each(@hasMany,
       (relation) =>
         @[relation.key] = new <%= js_app_name %>.Collections[relation.collection]
-        @[relation.key].url = "#{@[relation.key].url}/#{@id}/#{relation.key}"
+        @[relation.key].url = "#{@url()}/#{relation.key}"
         @[relation.key].reset @attributes[relation.key] if @attributes[relation.key]?
     )
 
