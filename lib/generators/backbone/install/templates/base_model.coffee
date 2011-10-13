@@ -1,11 +1,19 @@
 class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   initialize: () ->
+    _.each(@belongsTo,
+      (relation) =>
+        if relation.key? and @get(relation.foreignKey)? and relation.route? and relation.key? and relation.model?
+          url = "/#{relation.route}/#{@get(relation.foreignKey)}"
+          @[relation.key] = new <%= js_app_name %>.Models[relation.model] <%= js_app_name %>.Helpers.jsonData(url)
+    )
+
     _.each(@hasMany,
       (relation) =>
-        @[relation.key] = new <%= js_app_name %>.Collections[relation.collection]
-        @[relation.key].url = "#{@url()}/#{relation.key}" unless @isNew()
-        @[relation.key].reset @attributes[relation.key] if @attributes[relation.key]?
+        if relation.key? and relation.collection?
+          @[relation.key] = new <%= js_app_name %>.Collections[relation.collection]
+          @[relation.key].url = "#{@url()}/#{relation.key}" unless @isNew?
+          @[relation.key].reset @attributes[relation.key] if @attributes[relation.key]?
     )
 
   toJSON: () ->
@@ -65,6 +73,8 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
   includeCidInJson: false
 
   hasMany: []
+
+  belongsTo: []
 
   modelName: () ->
     @paramRoot
