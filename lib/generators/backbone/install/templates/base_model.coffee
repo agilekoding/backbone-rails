@@ -65,3 +65,20 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
   includeCidInJson: false
 
   hasMany: []
+
+  modelName: () ->
+    @paramRoot
+
+  humanName: () ->
+    name = <%= js_app_name %>.Helpers.activerecord.models[@paramRoot]
+    if name? then name else @paramRoot
+
+  humanAttributeName: (name) ->
+    modelAttributes = <%= js_app_name %>.Helpers.activerecord.attributes[@paramRoot]
+    if modelAttributes?
+      attribute = modelAttributes[name]
+      attributeName = if attribute? then attribute else name
+    else
+      attributeName = name
+
+    attributeName

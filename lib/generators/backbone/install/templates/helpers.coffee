@@ -57,3 +57,11 @@
     even: "debe ser un número par"
     odd: "debe ser un número non"
     invalid_email: "no es una dirección de correo electrónico válida"
+
+  activerecord:
+    models:
+      model_name: "Human Model Name"
+
+    attributes:
+      model_name:
+        attribute: "Human Attribute Name"
