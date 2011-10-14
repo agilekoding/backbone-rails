@@ -29,7 +29,14 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
       options)
 
-    if @model.isValid() then @collection.create(@model, options)
+    if @model.isValid()
+      @collection.create(@model,
+        success: (model, jqXHR) ->
+          window.router._editedModels = []
+          model.trigger("afterSave", model, jqXHR)
+          options.success(model)
+        error: options.error
+      )
     else @renderErrors(@model, @model.errors)
 
   update : (e, options = {}) ->
@@ -48,7 +55,14 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
     options)
 
-    if @model.isValid() then @model.save(null, options)
+    if @model.isValid()
+      @model.save(null,
+        success: (model, jqXHR) ->
+          window.router._editedModels = []
+          model.trigger("afterSave", model, jqXHR)
+          options.success(model)
+        error: options.error
+      )
     else @renderErrors(@model, @model.errors)
 
   renderErrors: (model, errors) ->

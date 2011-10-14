@@ -5,6 +5,7 @@ class <%= view_namespace %>.EditView extends <%= js_app_name %>.Views.BaseView
 
   initialize: ->
     @model.bind("error", @renderErrors)
+    @model.prepareToEdit()
 
   events:
     _.extend( _.clone(@__super__.events),
