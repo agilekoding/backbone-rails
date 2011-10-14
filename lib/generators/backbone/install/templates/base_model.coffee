@@ -1,31 +1,56 @@
 class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   initialize: () ->
-    _.each(@belongsTo,
-      (relation) =>
-        if relation.key? and @get(relation.foreignKey)? and relation.route? and relation.key? and relation.model?
-          url = "/#{relation.route}/#{@get(relation.foreignKey)}"
-          @[relation.key] = new <%= js_app_name %>.Models[relation.model] <%= js_app_name %>.Helpers.jsonData(url)
+    # Callbacks
+    @bind("afterSave", (model, jqXHR) ->
+      _.each(@afterSave, (callback, key) -> callback(model, jqXHR) )
     )
 
-    _.each(@hasMany,
-      (relation) =>
-        if relation.key? and relation.collection?
-          @[relation.key] = new <%= js_app_name %>.Collections[relation.collection]
-          @[relation.key].url = "#{@url()}/#{relation.key}" unless @isNew?
-          @[relation.key].reset @attributes[relation.key] if @attributes[relation.key]?
+    # belongsTo
+    @setBelongsTo()
+    _.each(@belongsTo, (relation, key) => @bind("change:#{relation.foreignKey}", () -> @setBelongsTo(key) ) )
+
+    # hasMany
+    _.each(@hasMany, (relation, key) =>
+      if relation.collection?
+        @[key] = new <%= js_app_name %>.Collections[relation.collection]
+        @[key].url = "#{@url()}/#{key}" unless @isNew()
+        @[key].reset @attributes[key] if @attributes[key]?
     )
 
   toJSON: () ->
     json = @attributes
     json["#{@paramRoot}_cid"] = "backboneCid_#{@cid}" if @includeCidInJson
     _.each(@hasMany,
-      (relation) =>
-        json["#{relation.key}_attributes"] = @[relation.key].toJSON() if @[relation.key]?
-        delete json[relation.key] if json[relation.key]?
+      (relation, key) =>
+        json["#{key}_attributes"] = @[key].toJSON() if @[key]?
+        delete json[key] if json[key]?
     )
     json
 
+  prepareToEdit: () ->
+    @_originalAttributes = _.clone( @toJSON() )
+    (window.router._editedModels ||= []).push(@)
+
+  resetToOriginValues: () ->
+    @set @_originalAttributes
+
+  setBelongsTo: (attribute) ->
+    if attribute?
+      relation = @belongsTo[attribute]
+      if @get(relation.foreignKey) and relation.route? and relation.model?
+        url  = "/#{relation.route}/#{@get(relation.foreignKey)}"
+        data = <%= js_app_name %>.Helpers.jsonData(url)
+        if @[attribute]? then @[attribute].set(data)
+        else @[attribute] = new <%= js_app_name %>.Models[relation.model] data
+    else
+      _.each(@belongsTo, (relation, key) =>
+        if @get(relation.foreignKey) and relation.route? and relation.model?
+          url  = "/#{relation.route}/#{@get(relation.foreignKey)}"
+          data = <%= js_app_name %>.Helpers.jsonData(url)
+          if @[key]? then @[key].set(data)
+          else @[key] = new <%= js_app_name %>.Models[relation.model] data
+      )
 
   validates: (attrs, validates = {}) ->
     resultMessage = {}
@@ -72,9 +97,11 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   includeCidInJson: false
 
-  hasMany: []
+  hasMany: {}
 
-  belongsTo: []
+  belongsTo: {}
+
+  afterSave: {}
 
   modelName: () ->
     @paramRoot
