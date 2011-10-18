@@ -34,7 +34,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
         success: (model, jqXHR) ->
           window.router._editedModels = []
           model.trigger("afterSave", model, jqXHR)
-          options.success(model)
+          options.success(model, jqXHR)
         error: options.error
       )
     else @renderErrors(@model, @model.errors)
@@ -60,7 +60,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
         success: (model, jqXHR) ->
           window.router._editedModels = []
           model.trigger("afterSave", model, jqXHR)
-          options.success(model)
+          options.success(model, jqXHR)
         error: options.error
       )
     else @renderErrors(@model, @model.errors)
