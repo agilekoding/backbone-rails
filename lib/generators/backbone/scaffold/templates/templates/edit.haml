@@ -4,11 +4,8 @@
       %h1
         = t(".title")
         ${<%= attributes.first.try(:name) %>}
-
-.row
-  .span16.columns
-    %ul.tabs
-      %li
-        = link_to t("links.back"), "#/index"
+      %ul.tabs
+        %li
+          = link_to t("links.back"), "#/index"
 
 = render :partial => "form", :locals => { :form_type => "edit" }

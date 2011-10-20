@@ -2,13 +2,10 @@
   .span16.columns
     .page-header
       %h1= t(".title")
-
-.row
-  .span16.columns
-    %ul.tabs
-      %li= link_to t("links.back"), "#/index"
-      %li= link_to t("links.edit"), "#/${id}/edit"
-      %li= link_to t("links.destroy"), "#/index", :class => "destroy", :confirm => t("links.confirm")
+      %ul.tabs
+        %li= link_to t("links.back"), "#/index"
+        %li= link_to t("links.edit"), "#/${id}/edit"
+        %li= link_to t("links.destroy"), "#/index", :class => "destroy", :confirm => t("links.confirm")
 
 .row
   .span10.columns

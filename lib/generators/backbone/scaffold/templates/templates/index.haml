@@ -2,11 +2,9 @@
   .span16.columns
     .page-header
       %h1= t(".title")
-.row
-  .span16.columns
-    %ul.tabs
-      %li
-        = link_to t("links.new", :resource => <%= classify_model_name %>.model_name.human), "#/new"
+      %ul.tabs
+        %li
+          = link_to t("links.new", :resource => <%= classify_model_name %>.model_name.human), "#/new"
 
 .row
   .span16.columns
