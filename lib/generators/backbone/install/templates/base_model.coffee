@@ -29,8 +29,11 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     json
 
   prepareToEdit: () ->
-    @_originalAttributes = _.clone( @toJSON() )
-    (window.router._editedModels ||= []).push(@)
+    window.router._editedModels ||= []
+    index = _.indexOf(window.router._editedModels, @)
+    if index is -1
+      @_originalAttributes = _.clone( @toJSON() )
+      window.router._editedModels.push(@)
 
   resetToOriginValues: () ->
     @set @_originalAttributes
@@ -97,10 +100,12 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   includeCidInJson: false
 
+  # Relations
   hasMany: {}
 
   belongsTo: {}
 
+  # Callbacks
   afterSave: {}
 
   modelName: () ->

@@ -1,7 +1,11 @@
 class <%= router_namespace %>Router extends Backbone.Router
   initialize: (options) ->
     @<%= plural_model_name %> = new <%= collection_namespace %>Collection()
-    @<%= plural_model_name %>.reset options.<%= plural_model_name %>
+
+    if options.<%= plural_model_name %>.pagination?
+      @<%= plural_model_name %>.reset options.<%= plural_model_name %>.resources
+      @<%= plural_model_name %>.pagination = options.<%= plural_model_name %>.pagination
+    else @<%= plural_model_name %>.reset options.<%= plural_model_name %>
 
   routes:
     "/new"      : "new<%= class_name %>"

@@ -75,6 +75,10 @@ module Backbone
         template "alerts/_warning_alert.haml", "app/views/backbone_alerts/_warning_alert.html.haml"
       end
 
+      def create_pagination_template
+        template "alerts/_pagination.haml", "app/views/backbone_alerts/_pagination.html.haml"
+      end
+
     end
   end
 end

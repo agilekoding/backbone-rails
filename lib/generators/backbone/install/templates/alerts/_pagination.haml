@@ -1,0 +1,26 @@
+.row
+  %hr
+  .pagination
+    %ul
+
+      {{if paginatePrev}}
+      %li.prev
+        = link_to t('will_paginate.previous'), '${resources_path}?page=${paginatePrev}'
+      {{else}}
+      %li.prev.disabled
+        = link_to t('will_paginate.previous'), '#'
+      {{/if}}
+
+      {{each pages}}
+      %li{:class => "${liKlass}"}
+        = link_to "${text}", '${path}'
+      {{/each}}
+
+      {{if paginateNext}}
+      %li.next
+        = link_to t('will_paginate.next'), '${resources_path}?page=${paginateNext}'
+      {{else}}
+      %li.next.disabled
+        = link_to t('will_paginate.next'), '#'
+      {{/if}}
+
