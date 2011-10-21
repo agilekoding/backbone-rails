@@ -79,6 +79,10 @@ module Backbone
         template "alerts/_pagination.haml", "app/views/backbone_alerts/_pagination.html.haml"
       end
 
+      def create_backbone_responses
+        template "backbone_responses.rb", "lib/backbone_responses.rb"
+      end
+
     end
   end
 end
