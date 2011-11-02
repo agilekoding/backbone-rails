@@ -60,11 +60,13 @@ module BackboneResponses
       end
 
       def resource_public_attributes
-        model = controller_name.classify.constantize
+        model  = end_of_association_chain
+        object = reload_resource ? resource.reload : resource
+
         if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{api_resource_template}")
-          resource.as_api_response(:"#{api_resource_template}")
+          object.as_api_response(:"#{api_resource_template}")
         else
-          resource
+          object
         end
       end
 
@@ -113,6 +115,10 @@ module BackboneResponses
 
     def resources_per_page
       50
+    end
+
+    def reload_resource
+      false
     end
 
 end
