@@ -22,7 +22,7 @@ class <%= view_namespace %>.IndexView extends <%= js_app_name %>.Views.BaseView
     @$("#<%= plural_name %>-table tbody").append(view.render().el)
 
   render: ->
-    $(@el).html(@template(<%= plural_model_name %>: @options.<%= plural_model_name %>.toJSON() ))
+    $(@el).html(@template(<%= plural_model_name %>: @options.<%= plural_model_name %>.toJSON(true) ))
     @addAll()
 
     return this

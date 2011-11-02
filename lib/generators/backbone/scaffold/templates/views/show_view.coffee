@@ -9,7 +9,7 @@ class <%= view_namespace %>.ShowView extends <%= js_app_name %>.Views.BaseView
     )
 
   render: ->
-    $(@el).html( @template( @model.toJSON() ) )
+    $(@el).html( @template( @model.toJSON(true) ) )
     return this
 
   destroy: (e) ->

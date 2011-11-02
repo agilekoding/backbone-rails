@@ -11,5 +11,5 @@ class <%= view_namespace %>.<%= singular_name.camelize %>View extends <%= js_app
     )
 
   render: ->
-    $(@el).html( @template( @model.toJSON() ) )
+    $(@el).html( @template( @model.toJSON(true) ) )
     return this

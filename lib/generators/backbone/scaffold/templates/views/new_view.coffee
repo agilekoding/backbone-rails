@@ -14,6 +14,6 @@ class <%= view_namespace %>.NewView extends <%= js_app_name %>.Views.BaseView
     )
 
   render: ->
-    $(@el).html( @template( @model.toJSON() ) )
+    $(@el).html( @template( @model.toJSON(true) ) )
     this.$("form#new_<%= singular_name %>").backboneLink(@model)
     return this

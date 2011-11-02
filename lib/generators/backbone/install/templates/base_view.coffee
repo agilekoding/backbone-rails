@@ -23,7 +23,6 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
     options = _.extend(
       success: (model) =>
-        @model = model
         window.location.hash = "/#{@model.id}"
       error: (model, jqXHR) =>
         @renderErrors( model, $.parseJSON( jqXHR.responseText ) )
@@ -32,15 +31,16 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
     if @model.isValid()
       @collection.create(@model,
-        success: (model, jqXHR) ->
+        success: (model, jqXHR) =>
           window.router._editedModels = []
+          @model.resetRelations(jqXHR)
           model.trigger("afterSave", model, jqXHR)
           options.success(model, jqXHR)
         error: options.error
       )
     else @renderErrors(@model, @model.errors)
 
-  update : (e, options = {}) ->
+  update: (e, options = {}) ->
     e.preventDefault()
     e.stopPropagation()
 
@@ -49,7 +49,6 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
     options = _.extend(
       success : (model) =>
-        @model = model
         window.location.hash = "/#{@model.id}"
       error: (model, jqXHR) =>
         @renderErrors( model, $.parseJSON( jqXHR.responseText ) )
@@ -58,8 +57,9 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
     if @model.isValid()
       @model.save(null,
-        success: (model, jqXHR) ->
+        success: (model, jqXHR) =>
           window.router._editedModels = []
+          @model.resetRelations(jqXHR)
           model.trigger("afterSave", model, jqXHR)
           options.success(model, jqXHR)
         error: options.error

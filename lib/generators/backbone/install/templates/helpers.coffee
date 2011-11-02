@@ -20,7 +20,10 @@
     $("#alerts_container").html( $("#backboneWarningAlert").tmpl(data) )
 
   renderErrors: (data) ->
-    $("#alerts_container").html( $("#backboneErrorAlert").tmpl(data) )
+    $('.alert-message').remove()
+    container = $(".columns form:first")
+    container.prepend( $("#backboneErrorAlert").tmpl(data) )
+    $('html, body').animate({ scrollTop: container.offset().top - 45 }, 'slow')
 
   renderSuccess: (data) ->
     $("#alerts_container").html( $("#backboneSuccessAlert").tmpl(data) )

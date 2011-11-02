@@ -1,6 +1,7 @@
 #= require_self
 #= require ./helpers
 #= require ./models/base_model
+#= require ./models/base_collection
 #= require_tree ./models
 #= require ./views/base_view
 #= require_tree ./views

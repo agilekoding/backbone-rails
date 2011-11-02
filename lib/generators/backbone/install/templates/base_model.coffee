@@ -1,31 +1,87 @@
 class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
-  initialize: () ->
+  initialize: (attributes, options) ->
+    # Clone de original attributes
+    attributes = _.extend({}, _.clone(attributes))
+
     # Callbacks
     @bind("afterSave", (model, jqXHR) ->
-      _.each(@afterSave, (callback, key) -> callback(model, jqXHR) )
+      _.each(@afterSave, (callback, key) -> callback?(model, jqXHR) )
     )
 
     # belongsTo
-    @setBelongsTo()
-    _.each(@belongsTo, (relation, key) => @bind("change:#{relation.foreignKey}", () -> @setBelongsTo(key) ) )
+    @setBelongsTo(attributes, null)
 
+    _.each(@belongsTo, (relation, key) =>
+      relation = @buildBelonsToRelation(relation, key)
+      @bind("change:#{relation.foreignKey}", () ->
+        @setBelongsTo({}, key)
+      )
+    )
     # hasMany
     _.each(@hasMany, (relation, key) =>
       if relation.collection?
-        @[key] = new <%= js_app_name %>.Collections[relation.collection]
-        @[key].url = "#{@url()}/#{key}" unless @isNew()
-        @[key].reset @attributes[key] if @attributes[key]?
+        # Create a new collection object if not exist
+        unless @[key]?
+          @[key] = new <%= js_app_name %>.Collections[relation.collection]
+          @[key].url = "#{@collectionRoute}/#{attributes.id}/#{key}" unless @isNew()
+
+        @[key].reset attributes[key] if attributes[key]?
     )
 
-  toJSON: () ->
-    json = @attributes
-    json["#{@paramRoot}_cid"] = "backboneCid_#{@cid}" if @includeCidInJson
+    # Call After Initialize Callback
+    @afterInitialize()
+
+  toJSON: ( includeRelations = false ) ->
+    json = _.clone @attributes
+
+    if includeRelations is true
+      json["#{@paramRoot}_cid"] = "backboneCid_#{@cid}"
+
+    # belongsTo
+    _.each(@belongsTo,
+      (relation, key) =>
+        relation = @buildBelonsToRelation(relation, key)
+
+        # include nesteds attributes for save with AJAX
+        if includeRelations is false
+          if @[key]? and relation.isNested is true
+            if relation.isPolymorphic isnt true
+              json["#{key}_attributes"] = @[key].toJSON(includeRelations)
+          delete json[key]
+
+        # include all values to use in Show view for example
+        else if @[key]?
+          json[key] = @[key].toJSON(includeRelations)
+
+          # include delegates
+          delegate = @delegates[key] || {}
+          _.each(delegate.attributes, (name) ->
+            if delegate.prefix is true then keyName = "#{key}_#{name}"
+            else keyName = name
+            json[keyName] = json[key][name]
+          )
+
+    )
+    # hasMany
     _.each(@hasMany,
       (relation, key) =>
-        json["#{key}_attributes"] = @[key].toJSON() if @[key]?
-        delete json[key] if json[key]?
+        if includeRelations is false
+          if @[key]? and relation.isNested is true
+            json["#{key}_attributes"] = @[key].toJSON(includeRelations)
+          delete json[key]
+        else if @[key]?
+          json[key] = @[key].toJSON(includeRelations)
     )
+
+    # Attributes that are eliminated are not part of the model
+    # only used to display information with some custom format
+    if includeRelations is false
+      _.each(@removeWhenSaving, (value) ->
+        delete json[value]
+      )
+
+
     json
 
   prepareToEdit: () ->
@@ -38,22 +94,89 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
   resetToOriginValues: () ->
     @set @_originalAttributes
 
-  setBelongsTo: (attribute) ->
-    if attribute?
-      relation = @belongsTo[attribute]
-      if @get(relation.foreignKey) and relation.route? and relation.model?
-        url  = "/#{relation.route}/#{@get(relation.foreignKey)}"
-        data = <%= js_app_name %>.Helpers.jsonData(url)
-        if @[attribute]? then @[attribute].set(data)
-        else @[attribute] = new <%= js_app_name %>.Models[relation.model] data
+  setBelongsTo: (attributes, callbackKey) ->
+    # For reload association object when foreignKey has changed
+    if callbackKey?
+      relation = @belongsTo[callbackKey]
+      @createBelongsToRelation(attributes, relation, callbackKey, callbackKey)
+
+    # For load association when and models is instantiated
     else
       _.each(@belongsTo, (relation, key) =>
-        if @get(relation.foreignKey) and relation.route? and relation.model?
-          url  = "/#{relation.route}/#{@get(relation.foreignKey)}"
-          data = <%= js_app_name %>.Helpers.jsonData(url)
-          if @[key]? then @[key].set(data)
-          else @[key] = new <%= js_app_name %>.Models[relation.model] data
+        @createBelongsToRelation(attributes, relation, key, callbackKey)
       )
+
+  createBelongsToRelation: (attributes, relation, key, callbackKey) ->
+    relation = @buildBelonsToRelation(relation, key)
+
+    if relation.model?
+
+      unless @[key]?
+        @[key] = new <%= js_app_name %>.Models[relation.model] attributes[key]
+
+      # Retrieve values from database if foreignKey has changed
+      else if callbackKey? and relation.isNested isnt true
+        if newValue = @get(relation.foreignKey)
+          if newValue isnt @[key].get("id")
+            url  = "/#{relation.route}/#{newValue}"
+            data = <%= js_app_name %>.Helpers.jsonData(url)
+
+            # Set values in association model
+            @[key].set(data) if data?
+
+        # clear attributes if foreignKey is null
+        else @[key].clear silent: true
+
+    else
+      # Create a new Backbone Model for use toJSON function
+      @[key] = new Backbone.Model
+
+  buildBelonsToRelation: (relation, key) ->
+    relation = _.clone relation
+
+    # When belongsTo is a polymorphic association
+    if relation.isPolymorphic is true
+      relation = @polymorphicRelation(relation, key)
+
+    else
+      # If route is not defined it's taken from model collectionRoute
+      unless relation.route?
+        relation.route = <%= js_app_name %>.Models[relation.model].collectionRoute
+
+      # If foreignKey is not defined it's taken from model paramRoot more "_id"
+      unless relation.foreignKey?
+        relation.foreignKey = "#{<%= js_app_name %>.Models[relation.model].paramRoot}_id"
+
+    relation
+
+
+  polymorphicRelation: (relation, key) ->
+    polymorphicType     = "#{key}_type"
+    relation.foreignKey = "#{key}_id"
+
+    if (modelName = @get(polymorphicType))?
+      relation.route = <%= js_app_name %>.Models[modelName].collectionRoute
+      relation.model = modelName
+
+    relation
+
+  resetRelations: (attributes) ->
+    # belongsTo
+    _.each(@belongsTo,
+      (relation, key) =>
+        values   = attributes[key]
+        relation = @buildBelonsToRelation(relation, key)
+        if values? and relation.isNested is true
+          @[key]   = new <%= js_app_name %>.Models[relation.model] values
+    )
+    # hasMany
+    _.each(@hasMany,
+      (relation, key) =>
+        values = attributes[key]
+        @[key].url = "#{@collectionRoute}/#{@get('id')}/#{key}" unless @isNew()
+        @[key].reset values if values?
+    )
+
 
   validates: (attrs, validates = {}) ->
     resultMessage = {}
@@ -105,8 +228,14 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   belongsTo: {}
 
+  delegates: {}
+
+  removeWhenSaving: []
+
   # Callbacks
   afterSave: {}
+
+  afterInitialize: () ->
 
   modelName: () ->
     @paramRoot

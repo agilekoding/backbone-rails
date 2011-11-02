@@ -67,6 +67,10 @@ module Backbone
         template "base_view.coffee", "app/assets/javascripts/backbone/views/base_view.js.coffee"
       end
 
+      def create_base_collection_file
+        template "base_collection.coffee", "app/assets/javascripts/backbone/models/base_collection.js.coffee"
+      end
+
       def create_dir_backbone_alerts
         empty_directory "app/views/backbone_alerts"
         template "alerts/_error_alert.haml", "app/views/backbone_alerts/_error_alert.html.haml"
