@@ -47,18 +47,19 @@
     backboneLink: function(model) {
       var container = $(this);
       container.find(":input").each(function() {
-        var el, name, nestedName, nesteds;
-        el         = $(this);
-        nestedName = el.attr("name");
-        nesteds    = nestedName.split("[")
+        var el, name, nestedName, nesteds, nestedObject;
+        el           = $(this);
+        nestedName   = el.attr("name");
+        nesteds      = nestedName.split("[")
+        nestedObject = getNestedObject(el, model);
 
         for(var i in nesteds) nesteds[i] = nesteds[i].replace("]", "")
         name = nesteds[nesteds.length-1];
 
         setSelectedValueForInput(container, el, model, name);
 
-        model.bind("change:" + name, function() {
-          return el.val(model.get(name));
+        nestedObject.bind("change:" + name, function() {
+          return el.val(nestedObject.get(name));
         });
         return $(this).bind("change", function() {
           el = $(this);
