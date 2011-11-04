@@ -182,33 +182,49 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     resultMessage = {}
     messages = <%= js_app_name %>.Helpers.errorsMessages
 
-    _.each(attrs, (value, key) ->
+    _.each(attrs, (value, key) =>
       values = _.compact( (validates[key] ||= "").split(" ") )
 
-      for value in values
+      for validation in values
+        appliedValidations = true
+        value              = validation.split(":")[0]
+        action             = validation.split(":")[1]
 
-        switch value
-          when "presence"
-            if _.isEmpty( $.trim( attrs[key] ) )
-              (resultMessage[key] ||= []).push(messages.blank)
+        if @isNew() is true and action is "onUpdate"
+          appliedValidations = false
 
-          when "numericality"
-            unless (/^\d+\.?\d+$/.test( attrs[key] ) )
-              (resultMessage[key] ||= []).push(messages.not_a_number)
+        if @isNew() is false and action is "onCreate"
+          appliedValidations = false
 
-          when "email"
-            unless ( /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test( attrs[key] ) )
-              (resultMessage[key] ||= []).push(messages.invalid_email)
+        if appliedValidations is true
 
-          when "rfc"
-            unless ( /^([A-Z|a-z|&amp;]{3}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)(\w{2})([A-Z|a-z|0-9])$|^([A-Z|a-z]{4}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)((\w{2})([A-Z|a-z|0-9])){0,3}$/.test( attrs[key] ) )
-              (resultMessage[key] ||= []).push(messages.invalid)
+          switch value
+            when "presence"
+              if _.isEmpty( $.trim( attrs[key] ) )
+                (resultMessage[key] ||= []).push(messages.blank)
 
-          when "zip_code"
-            unless ( /^\d{5}$/.test( attrs[key] ) )
-              (resultMessage[key] ||= []).push(messages.invalid)
+            when "numericality"
+              unless (/^\d+\.?\d+$/.test( attrs[key] ) )
+                (resultMessage[key] ||= []).push(messages.not_a_number)
 
-          else false
+            when "email"
+              unless ( /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test( attrs[key] ) )
+                (resultMessage[key] ||= []).push(messages.invalid_email)
+
+            when "rfc"
+              unless ( /^([A-Z|a-z|&amp;]{3}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)(\w{2})([A-Z|a-z|0-9])$|^([A-Z|a-z]{4}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)((\w{2})([A-Z|a-z|0-9])){0,3}$/.test( attrs[key] ) )
+                (resultMessage[key] ||= []).push(messages.invalid)
+
+            when "zip_code"
+              unless ( /^\d{5}$/.test( attrs[key] ) )
+                (resultMessage[key] ||= []).push(messages.invalid)
+
+            when "equalTo"
+              unless attrs[key] is @get(action)
+                message = "#{messages.equal_to} #{@humanAttributeName(action)}"
+                (resultMessage[key] ||= []).push(message)
+
+            else false
     )
 
     if _.isEmpty(resultMessage)

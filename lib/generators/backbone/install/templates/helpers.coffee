@@ -52,7 +52,7 @@
     too_long:
       one: "es demasiado largo (máximo 1 caracter)"
       other: "es demasiado largo (máximo %{count} caracteres)"
-    equal_to: "debe ser igual a %{count}"
+    equal_to: "debe ser igual a"
     wrong_length:
       one: "longitud errónea (debe ser de 1 caracter)"
       other: "longitud errónea (debe ser de %{count} caracteres)"

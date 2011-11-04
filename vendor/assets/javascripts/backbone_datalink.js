@@ -37,8 +37,11 @@
   function setValues(el, model, name){
     var attrs = {};
     var nestedObject = getNestedObject(el, model);
+    var inputValue = el.val();
 
-    attrs[name] = el.val();
+    if (inputValue === "") inputValue = null;
+
+    attrs[name] = inputValue;
     nestedObject.set(attrs);
     return true;
   }
