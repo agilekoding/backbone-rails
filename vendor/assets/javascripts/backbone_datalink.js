@@ -1,15 +1,20 @@
 (function($) {
 
+  function getNestedName(el){
+    var nestedName = el.attr("name").replace("[]", "");
+    var nesteds = nestedName.split("[");
+
+    for(var i in nesteds) nesteds[i] = nesteds[i].replace("]", "")
+    return nesteds[nesteds.length-1];
+  }
+
   function getNestedObject(el, model){
     var nestedName = el.attr("name");
     var nesteds = nestedName.split("[")
     var nestedObject = null;
 
-    for(var i in nesteds) nesteds[i] = nesteds[i].replace("]", "")
-    var name = nesteds[nesteds.length-1];
-
     for (var i in nesteds) {
-      var value = nesteds[i];
+      var value = nesteds[i].replace("]", "");
       nestedObject = nestedObject == null ? model : nestedObject;
       if ( /^.+_attributes$/.test(value) ) {
         value = value.replace("_attributes", "");
@@ -22,9 +27,13 @@
     return nestedObject;
   }
 
-  function setSelectedValueForInput(container, el, model, name){
-    var nestedObject = getNestedObject(el, model);
+  function setSelectedValueForInput(container, el, nestedObject){
+    var name = getNestedName(el);
     var value = nestedObject.get(name)
+
+    if ( el.is("input:text") )
+      el.val(value)
+
     if ( el.is("select") )
       el.find("option[value=\""+value+"\"]").attr('selected', true);
 
@@ -32,12 +41,45 @@
       var radioName = el.attr("name");
       container.find("input[name=\""+radioName+"\"][value=\""+value+"\"]:radio").attr('checked', true);
     }
+
+    if ( el.is("input:checkbox") ) {
+      // HABTM
+      if ( /_ids$/.test(name) ) {
+        var list = (value === null || value === undefined) ? [] : value;
+        var checkboxValue = parseInt(el.val(), 10);
+        if ( _.include(list, checkboxValue) )
+          el.attr("checked", true);
+      } else {
+        var booleanValue = ( el.val() === "true" || el.val() === "1" ) ? true : false;
+        var shouldMarked = ( value === booleanValue ) ? true : false;
+        el.attr("checked", shouldMarked)
+      }
+    }
   }
 
-  function setValues(el, model, name){
+  function setValues(container, el, nestedObject){
     var attrs = {};
-    var nestedObject = getNestedObject(el, model);
+    var name = getNestedName(el);
     var inputValue = el.val();
+
+    if ( el.is("input:checkbox") ) {
+      // HABTM
+      if ( /_ids$/.test(name) ) {
+        var checkeds = container.find("input[name$=\"_ids][]\"]:checkbox:checked");
+        inputValue = [];
+        for(var i = 0, l = checkeds.length; i < l; i++){
+          var checkbox = $(checkeds[i]);
+          inputValue.push(checkbox.val());
+        }
+      } else {
+        if ( el.is(":checked") )
+          inputValue = el.val();
+        else {
+          var checkboxName = el.attr("name");
+          inputValue = el.parent().find("input[type=\"hidden\"][name=\""+checkboxName+"\"]").val();
+        }
+      }
+    }
 
     if (inputValue === "") inputValue = null;
 
@@ -46,30 +88,30 @@
     return true;
   }
 
+  function bindChangeEvents(container, el, nestedObject){
+    var name = getNestedName(el);
+    nestedObject.bind("change:" + name, function() {
+      return setSelectedValueForInput(container, el, nestedObject);
+    });
+  }
+
   return $.extend($.fn, {
     backboneLink: function(model) {
       var container = $(this);
       container.find(":input").each(function() {
-        var el, name, nestedName, nesteds, nestedObject;
+        var el, nestedObject;
         el           = $(this);
-        nestedName   = el.attr("name");
-        nesteds      = nestedName.split("[")
         nestedObject = getNestedObject(el, model);
 
-        for(var i in nesteds) nesteds[i] = nesteds[i].replace("]", "")
-        name = nesteds[nesteds.length-1];
+        setSelectedValueForInput(container, el, nestedObject);
+        bindChangeEvents(container, el, nestedObject);
 
-        setSelectedValueForInput(container, el, model, name);
+        return el.bind("change", function() {
+          return setValues(container, el, nestedObject);
+        });
 
-        nestedObject.bind("change:" + name, function() {
-          return el.val(nestedObject.get(name));
-        });
-        return $(this).bind("change", function() {
-          el = $(this);
-          return setValues(el, model, name);
-        });
       });
-      return $(this);
+      return container;
     }
   });
 })(jQuery);
