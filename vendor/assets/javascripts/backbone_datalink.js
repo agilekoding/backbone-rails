@@ -50,8 +50,9 @@
         if ( _.include(list, checkboxValue) )
           el.attr("checked", true);
       } else {
-        var booleanValue = ( el.val() === "true" || el.val() === "1" ) ? true : false;
-        var shouldMarked = ( value === booleanValue ) ? true : false;
+        var inputValue = _.include([true, "true", 1, "1"], el.val());
+        var booleanValue = _.include([true, "true", 1, "1"], value);
+        var shouldMarked = inputValue === booleanValue;
         el.attr("checked", shouldMarked)
       }
     }
