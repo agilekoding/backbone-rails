@@ -88,7 +88,11 @@ module Backbone
       end
 
       def create_inheritance_module_file
-        template "modules/inheritance.rb", "app/assets/javascripts/backbone/modules/inheritance.js.coffee"
+        template "modules/inheritance.coffee", "app/assets/javascripts/backbone/modules/inheritance.js.coffee"
+      end
+
+      def create_eip_module_file
+        template "modules/eip.coffee", "app/assets/javascripts/backbone/modules/eip.js.coffee"
       end
 
     end
