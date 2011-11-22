@@ -76,7 +76,7 @@ String.prototype.toUnderscore = () ->
   replace( /^_/, '' )
 
 String.prototype.toCamelize = (type) ->
-  value = @replace(/(_| )/, "-").
+  value = @replace(/(_| )/g, "-").
   replace(/(\-[a-z])/g, ($1) -> $1.toUpperCase().replace('-','') ).
   replace( /^([a-z])/g, ($1) -> $1.toUpperCase() )
 

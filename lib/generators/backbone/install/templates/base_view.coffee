@@ -1,6 +1,31 @@
 class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
+  _.extend @, Modules.Inheritance
+
+  constructor: ->
+    @beforeInitialize()
+    super(arguments...)
+    @afterInitialize()
+
+  # Callbacks
+  # ==========================================================
+  beforeInitialize: ->
+    _.each(@_beforeInitialize, (callback, key) =>
+      callback?.apply(@)
+    )
+
+  afterInitialize: ->
+    _.each(@_afterInitialize, (callback, key) =>
+      callback?.apply(@)
+    )
+
+  beforeRemove: ->
+    _.each(@_beforeRemove, (callback, key) =>
+      callback?.apply(@)
+    )
+
   # Defaults Events
+  # ==========================================================
   events:
     "click .destroy" : "destroy"
     "click div.pagination a" : "pagination"
@@ -67,7 +92,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     else @renderErrors(@model, @model.errors)
 
   # Errors
-  # ________________________________________________________________________
+  # ==========================================================
   renderErrors: (model, errors) ->
     fullErrors = {}
     _.each(errors, (messages, key) ->
@@ -78,7 +103,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     <%= js_app_name %>.Helpers.renderErrors(fullErrors)
 
   # Pagination
-  # ________________________________________________________________________
+  # ==========================================================
   pagination: (e, collection) ->
     e.preventDefault()
     link = $(e.currentTarget)
@@ -105,12 +130,18 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
       # builder pages
       for number in [1..pagination.total_pages]
-        page = {}
+        page         = {}
         page.liKlass = "active" if pagination.current_page is number
-        page.text = number
-        page.path   = "#{pagination.resources_path}?page=#{number}"
+        page.text    = number
+        page.path    = "#{pagination.resources_path}?page=#{number}"
         pagination.pages.push(page)
 
       @$("#pagination-container").html(
         $("#backboneTemplatesPagination").tmpl(pagination)
       )
+
+  # Remove Callbacks in beforeRemove() function if needed
+  # ==========================================================
+  remove: ->
+    @beforeRemove()
+    super()
