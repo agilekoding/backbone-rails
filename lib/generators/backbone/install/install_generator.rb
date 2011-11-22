@@ -45,7 +45,7 @@ module Backbone
       end
 
       def create_dir_layout
-        %W{routers models views}.each do |dir|
+        %W{routers models views modules}.each do |dir|
           empty_directory "app/assets/javascripts/backbone/#{dir}"
           create_file "app/assets/javascripts/backbone/#{dir}/.gitkeep" unless options[:skip_git]
         end
@@ -85,6 +85,10 @@ module Backbone
 
       def create_backbone_responses
         template "backbone_responses.rb", "lib/backbone_responses.rb"
+      end
+
+      def create_inheritance_module_file
+        template "modules/inheritance.rb", "app/assets/javascripts/backbone/modules/inheritance.js.coffee"
       end
 
     end
