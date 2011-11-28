@@ -51,12 +51,16 @@ module BackboneResponses
 
       def collection
         if paginate?
-          resources = end_of_association_chain.paginate(
+          resources = collection_scopes.paginate(
             :page => (params[:page] || 1), :per_page => resources_per_page)
         else
-          resources = end_of_association_chain.all
+          resources = collection_scopes.all
         end
         instance_variable_set("@#{controller_name}" , resources)
+      end
+
+      def collection_scopes
+        end_of_association_chain
       end
 
       def resource_public_attributes
@@ -71,7 +75,7 @@ module BackboneResponses
       end
 
       def collection_public_attributes
-        model     = controller_name.classify.constantize
+        model     = end_of_association_chain
         resources = collection
 
         if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{api_collection_template}")
@@ -106,7 +110,7 @@ module BackboneResponses
     end
 
     def api_resource_template
-      "public"
+      params[:api_template] || "public"
     end
 
     def paginate?
