@@ -30,21 +30,26 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     "click .destroy" : "destroy"
     "click div.pagination a" : "pagination"
 
+  allowAction: (element) ->
+    message = element.attr("data-confirm") || element.attr("confirm")
+    !message || confirm(message)
+
   destroy: (e, options = {}) ->
-    msg = $(e.currentTarget).attr("data-confirm")
-    if msg? and !confirm(msg) then return false
+    e.preventDefault()
 
-    @model.destroy(options)
-    @remove()
+    if @model?
+      link = $(e.currentTarget)
+      return false unless @allowAction(link)
 
-    return false
+      @model.destroy(options)
+      @remove()
 
   save: (e, options = {}) ->
     e.preventDefault()
     e.stopPropagation()
 
-    msg = $(e.currentTarget).attr("confirm")
-    if msg? and !confirm(msg) then return false
+    form = $(e.currentTarget)
+    return false unless @allowAction(form)
 
     options = _.extend(
       success: (model) =>
@@ -54,7 +59,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
       options)
 
-    if @model.isValid()
+    if @model.isValid() is true
       @collection.create(@model,
         success: (model, jqXHR) =>
           window.router._editedModels = []
@@ -69,8 +74,8 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     e.preventDefault()
     e.stopPropagation()
 
-    msg = $(e.currentTarget).attr("confirm")
-    if msg? and !confirm(msg) then return false
+    form = $(e.currentTarget)
+    return false unless @allowAction(form)
 
     options = _.extend(
       success : (model) =>
@@ -80,7 +85,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
     options)
 
-    if @model.isValid()
+    if @model.isValid() is true
       @model.save(null,
         success: (model, jqXHR) =>
           window.router._editedModels = []
@@ -96,24 +101,29 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
   renderErrors: (model, errors) ->
     fullErrors = {}
     _.each(errors, (messages, key) ->
-      name = $('label[for="' + model.paramRoot + '_' + key + '"]').text() || key
+      name = model.humanAttributeName(key)
       for message in messages
-        (fullErrors.errors ||= []).push({name: name, message: message})
+        (fullErrors.messages ||= []).push({name: name, message: message})
     )
-    <%= js_app_name %>.Helpers.renderErrors(fullErrors)
+    <%= js_app_name %>.Helpers.renderError(fullErrors)
 
   # Pagination
   # ==========================================================
   pagination: (e, collection) ->
     e.preventDefault()
-    link = $(e.currentTarget)
-    li   = link.closest("li")
+    link      = $(e.currentTarget)
+    li        = link.closest("li")
+    container = link.closest("#pagination-container")
 
     unless li.is(".active, .prev.disabled, .next.disabled")
-      href = link.attr("href")
-      data = <%= js_app_name %>.Helpers.jsonData href
-      collection.pagination = data.pagination
-      collection.reset data.resources
+      unless container.attr("data-waiting")
+        container.attr("data-waiting", true)
+        href = link.attr("href")
+        <%= js_app_name %>.Helpers.jsonCallback(href, (data) ->
+          collection.pagination = data.pagination
+          collection.reset data.resources
+          container.removeAttr("data-waiting")
+        )
 
   renderPagination: (collection) ->
     pagination = collection.pagination || {}
@@ -145,3 +155,17 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
   remove: ->
     @beforeRemove()
     super()
+
+  # I18n support
+  t: (route = "") ->
+    Modules.I18n.t route
+
+  # Falsh Messages
+  flash: (type, messages = "") ->
+    if _.include <%= js_app_name %>.Config.flashes, type
+      if _.isString messages
+        messages = {messages: [{message: messages}]}
+
+      flashTemplate = "render_#{type}".toCamelize("lower")
+      <%= js_app_name %>.Helpers[flashTemplate]? messages
+
