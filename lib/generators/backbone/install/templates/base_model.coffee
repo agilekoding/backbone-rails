@@ -1,6 +1,8 @@
 class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   initialize: (attributes, options) ->
+    @calculatedAttributes = {}
+
     # Clone de original attributes
     attributes = _.extend({}, _.clone(attributes))
 
@@ -32,11 +34,29 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     # Call After Initialize Callback
     @afterInitialize()
 
-  toJSON: ( includeRelations = false ) ->
+  get : ( key ) ->
+    that = @
+
+    if @calculatedAttributes[key]
+      value = @calculatedAttributes[key]
+
+      if typeof value != 'undefined'
+        return value
+
+    # fall back to the default backbone behavior
+    return Backbone.Model.prototype.get.call(this, key)
+
+
+  toJSON: ( includeRelations = false, includeCalculated = false ) ->
     json = _.clone @attributes
 
     if includeRelations is true
       json["#{@paramRoot}_cid"] = "backboneCid_#{@cid}"
+
+    if includeCalculated is true
+      _.each(@calculatedAttributes, (attribute, key) =>
+        json[key] = attribute
+      )
 
     # belongsTo
     _.each(@belongsTo,
@@ -48,6 +68,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
           if @[key]? and relation.isNested is true
             if relation.isPolymorphic isnt true
               json["#{key}_attributes"] = @[key].toJSON(includeRelations)
+
           delete json[key]
 
         # include all values to use in Show view for example
@@ -67,9 +88,12 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     _.each(@hasMany,
       (relation, key) =>
         if includeRelations is false
+
           if @[key]? and relation.isNested is true
             json["#{key}_attributes"] = @[key].toJSON(includeRelations)
+
           delete json[key]
+
         else if @[key]?
           json[key] = @[key].toJSON(includeRelations)
     )
@@ -81,6 +105,10 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         delete json[value]
       )
 
+      # Attributes with null value are eliminated
+      for _key, _value of json
+        if _value is null and @hasChanged(_key) is false
+          delete json[_key]
 
     json
 
@@ -116,13 +144,15 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
       # Retrieve values from database if foreignKey has changed
       else if callbackKey? and relation.isNested isnt true
+
         if newValue = @get(relation.foreignKey)
           if newValue isnt @[key].get("id")
             url  = "/#{relation.route}/#{newValue}"
-            data = <%= js_app_name %>.Helpers.jsonData(url)
-
-            # Set values in association model
-            @[key].set(data) if data?
+            <%= js_app_name %>.Helpers.jsonCallback(
+              url
+              (data) => @[key].set(data, {silent: true}) if data?
+              {api_template: "base"} # params
+            )
 
         # clear attributes if foreignKey is null
         else @[key].clear silent: true
@@ -166,8 +196,8 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
       (relation, key) =>
         values   = attributes[key]
         relation = @buildBelonsToRelation(relation, key)
-        if values? and relation.isNested is true
-          @[key]   = new <%= js_app_name %>.Models[relation.model] values
+        if values? and ( relation.isNested is true or relation.resettable is true)
+          @[key] = new <%= js_app_name %>.Models[relation.model] values
     )
     # hasMany
     _.each(@hasMany,
@@ -180,62 +210,93 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   validates: (attrs, validates = {}) ->
     resultMessage = {}
-    messages = <%= js_app_name %>.Helpers.errorsMessages
+    messages = Modules.I18n.hash().errorsMessages
 
-    _.each(attrs, (value, key) =>
-      values = _.compact( (validates[key] ||= "").split(" ") )
+    # Each for attributes of the model
+    _.each(attrs, (attrValue, attrKey) =>
 
-      for validation in values
+      for key, validation of validates[attrKey]
         appliedValidations = true
-        value              = validation.split(":")[0]
-        action             = validation.split(":")[1]
+        action             = validation.on
 
-        if @isNew() is true and action is "onUpdate"
+        if @isNew() is true and action is "update"
           appliedValidations = false
 
-        if @isNew() is false and action is "onCreate"
+        if @isNew() is false and action is "create"
           appliedValidations = false
 
         if appliedValidations is true
 
-          switch value
+          isEmpty = _.isEmpty( $.trim( attrValue ) )
+
+          switch key
             when "presence"
-              if _.isEmpty( $.trim( attrs[key] ) )
-                (resultMessage[key] ||= []).push(messages.blank)
+              if isEmpty
+                (resultMessage[attrKey] ||= []).push(messages.blank)
 
             when "numericality"
-              unless (/^\d+\.?\d+$/.test( attrs[key] ) )
-                (resultMessage[key] ||= []).push(messages.not_a_number)
+              if isEmpty is false and  /^\d+(\.\d+)?$/.test( attrValue ) is false
+                (resultMessage[attrKey] ||= []).push(messages.not_a_number)
 
             when "email"
-              unless ( /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test( attrs[key] ) )
-                (resultMessage[key] ||= []).push(messages.invalid_email)
+              if isEmpty is false and  /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test( attrValue ) is false
+                (resultMessage[attrKey] ||= []).push(messages.invalid_email)
 
             when "rfc"
-              unless ( /^([A-Z|a-z|&amp;]{3}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)(\w{2})([A-Z|a-z|0-9])$|^([A-Z|a-z]{4}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)((\w{2})([A-Z|a-z|0-9])){0,3}$/.test( attrs[key] ) )
-                (resultMessage[key] ||= []).push(messages.invalid)
+              if isEmpty is false and  /^([A-Z|a-z|&amp;]{3}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)(\w{2})([A-Z|a-z|0-9])$|^([A-Z|a-z]{4}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)((\w{2})([A-Z|a-z|0-9])){0,3}$/.test( attrValue ) is false
+                (resultMessage[attrKey] ||= []).push(messages.invalid)
 
             when "zip_code"
-              unless ( /^\d{5}$/.test( attrs[key] ) )
-                (resultMessage[key] ||= []).push(messages.invalid)
+              if isEmpty is false and  /^\d{5}$/.test( attrValue ) is false
+                (resultMessage[attrKey] ||= []).push(messages.invalid)
+
+            when "length"
+              if isEmpty is false
+                min        = validation.min
+                max        = validation.max
+                attrLength = (attrValue || "").length
+
+                if (min? and attrLength < min)
+                  if min is 1 then lengthMessage = "one" else lengthMessage = "other"
+                  message = (messages.too_short?[lengthMessage] || "").replace("%{count}", min)
+                  (resultMessage[attrKey] ||= []).push(message)
+
+                else if (max? and attrLength > max)
+                  if max is 1 then lengthMessage = "one" else lengthMessage = "other"
+                  message = (messages.too_long?[lengthMessage] || "").replace("%{count}", max)
+                  (resultMessage[attrKey] ||= []).push(message)
 
             when "equalTo"
-              unless attrs[key] is @get(action)
-                message = "#{messages.equal_to} #{@humanAttributeName(action)}"
-                (resultMessage[key] ||= []).push(message)
+              unless attrValue is @get(validation)
+                message = (messages.equal_to || "").replace("%{count}", @humanAttributeName(validation))
+                (resultMessage[attrKey] ||= []).push(message)
 
             else false
     )
 
-    if _.isEmpty(resultMessage)
-      delete @errors
-      null
+    if _.isEmpty(resultMessage) then null
     else
       @attributes = _.extend(@attributes, attrs)
       @errors = resultMessage
 
   isValid: () ->
-    if @validate(@attributes)? then false else true
+    resultValidation = @validate(@attributes) || {}
+
+    # Run HasMany validations
+    for key, value of @hasMany when value.isNested is true
+      @[key].each((model) ->
+        nestedValidation = model.validate(model.attributes) || {}
+        resultValidation["#{key}.#{_key}"] = _value for _key, _value of nestedValidation
+      )
+
+    # Run BelongsTo validations
+    for key, value of @belongsTo when value.isNested is true
+      model = @[key]
+      nestedValidation = model.validate(model.attributes) || {}
+      resultValidation["#{key}.#{_key}"] = _value for _key, _value of nestedValidation
+
+    if _.isEmpty resultValidation then true
+    else @errors = resultValidation
 
   includeCidInJson: false
 
@@ -253,19 +314,12 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   afterInitialize: () ->
 
+  # I18n support
   modelName: () ->
     @paramRoot
 
   humanName: () ->
-    name = <%= js_app_name %>.Helpers.activerecord.models[@paramRoot]
-    if name? then name else @paramRoot
+    Modules.I18n.t "activerecord.models.#{@paramRoot}"
 
   humanAttributeName: (name) ->
-    modelAttributes = <%= js_app_name %>.Helpers.activerecord.attributes[@paramRoot]
-    if modelAttributes?
-      attribute = modelAttributes[name]
-      attributeName = if attribute? then attribute else name
-    else
-      attributeName = name
-
-    attributeName
+    Modules.I18n.t "activerecord.attributes.#{@paramRoot}.#{name}"
