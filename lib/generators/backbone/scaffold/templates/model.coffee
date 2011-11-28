@@ -9,11 +9,13 @@ class <%= model_namespace %> extends <%= js_app_name %>.Models.BaseModel
 
   validate: (attrs) ->
     return @validates(attrs, {
-      # example: <field_name>: "presence"
+      # example
+      # <field_name>:
+      #   presence: true
     })
 
-<%= model_namespace %>.paramRoot = '<%= singular_name %>'
-<%= model_namespace %>.collectionRoute = '<%= plural_name %>'
+  @paramRoot = '<%= singular_name %>'
+  @collectionRoute = '<%= plural_name %>'
 
 class <%= collection_namespace %>Collection extends <%= js_app_name %>.Collections.BaseCollection
   model: <%= model_namespace %>

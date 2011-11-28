@@ -1,4 +1,4 @@
-MultivaAtm.Locales["es-MX"] =
+<%= js_app_name %>.Locales["es-MX"] =
   errorsMessages:
     inclusion: "no está incluído en la lista"
     exclusion: "está reservado"

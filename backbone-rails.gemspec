@@ -3,7 +3,7 @@
 Gem::Specification.new do |s|
   s.name = "rails-backbone"
   s.version = "0.5.4"
-  s.authors     = ["Ryan Fitzgerald", "Code Brew Studios"]
+  s.authors     = ["Ryan Fitzgerald", "Code Brew Studios", "Jairo Vazquez"]
   s.email       = ["ryan@codebrewstudios.com"]
   s.homepage    = "http://github.com/codebrew/backbone-rails"
 
