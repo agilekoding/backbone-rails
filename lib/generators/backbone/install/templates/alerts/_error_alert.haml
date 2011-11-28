@@ -1,7 +1,7 @@
 .alert-message.error.block-message
   %a.close{:href =>"#"} x
 
-  {{each errors}}
+  {{each messages}}
   %p
     %strong ${name} ${message}
   {{/each}}

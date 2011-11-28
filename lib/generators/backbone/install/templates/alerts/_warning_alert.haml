@@ -1,4 +1,7 @@
-.alert-message.warning
+.alert-message.warning.block-message
   %a.close{:href =>"#"} x
+
+  {{each messages}}
   %p
-    %strong Ocurrio un super warning
+    %strong ${message}
+  {{/each}}
