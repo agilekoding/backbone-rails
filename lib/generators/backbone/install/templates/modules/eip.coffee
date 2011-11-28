@@ -109,14 +109,15 @@ Modules.EIP = (options = {}) ->
       eipDestroyNested: (e) ->
         e.preventDefault()
 
-        msg = $(e.currentTarget).attr("data-confirm")
-        if msg? and !confirm(msg) then return false
-
         dom          = $(e.currentTarget)
         model_object = dom.data('nested_model')
 
-        if dom.data('nested_model') is undefined
+        if model_object is undefined or model_object is null
           model_object = dom.parents('.eip-node').data('nested_model')
+
+        unless model_object.isNew()
+          msg = $(e.currentTarget).attr("data-confirm")
+          if msg? and !confirm(msg) then return false
 
         model_object.destroy()
 
@@ -167,11 +168,13 @@ Modules.EIP = (options = {}) ->
         _.each(@eipNodes, (node, key) =>
           @eipGetCollection(key).bind("add", @eipPrintNodeWithForm, @)
           @eipGetCollection(key).bind("destroy", @eipRemoveNestedFromDom, @)
+          @eipGetCollection(key).bind("error", @renderErrors, @)
         )
       eipUnbindCallbacks: ->
         _.each(@eipNodes, (node, key) =>
           @eipGetCollection(key).unbind("add", @eipPrintNodeWithForm, @)
           @eipGetCollection(key).unbind("destroy", @eipRemoveNestedFromDom, @)
+          @eipGetCollection(key).unbind("error", @renderErrors, @)
         )
 
       # Other Functions
