@@ -45,7 +45,7 @@ module Backbone
       end
 
       def create_dir_layout
-        %W{routers models views modules}.each do |dir|
+        %W{routers models views modules config}.each do |dir|
           empty_directory "app/assets/javascripts/backbone/#{dir}"
           create_file "app/assets/javascripts/backbone/#{dir}/.gitkeep" unless options[:skip_git]
         end
@@ -93,6 +93,19 @@ module Backbone
 
       def create_eip_module_file
         template "modules/eip.coffee", "app/assets/javascripts/backbone/modules/eip.js.coffee"
+      end
+
+      def create_i18n_module_file
+        template "modules/i18n.coffee", "app/assets/javascripts/backbone/modules/i18n.js.coffee"
+      end
+
+      def create_locale_files
+        empty_directory "app/assets/javascripts/backbone/config/locales"
+        template "config/locales/es-MX.coffee", "app/assets/javascripts/backbone/config/locales/es-MX.js.coffee"
+      end
+
+      def create_config_files
+        template "config/string.coffee", "app/assets/javascripts/backbone/config/string.js.coffee"
       end
 
     end

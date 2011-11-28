@@ -1,6 +1,7 @@
 #= require_self
-#= require ./helpers
+#= require_tree ./config
 #= require_tree ./modules
+#= require ./helpers
 #= require ./models/base_model
 #= require ./models/base_collection
 #= require_tree ./models
@@ -13,5 +14,9 @@ window.<%= js_app_name %> =
   Collections: {}
   Routers: {}
   Views: {}
+  Locales: {}
+  Config:
+    default_locale:"es-MX"
+    flashes: ["warning", "error", "success", "info"]
 
 window.Modules = {}
