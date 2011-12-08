@@ -44,7 +44,18 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         return value
 
     # fall back to the default backbone behavior
-    return Backbone.Model.prototype.get.call(this, key)
+    super(key)
+
+  setAllValues: ->
+    resettable = if _.isFunction(@isResettable) then @isResettable() else @isResettable
+    if resettable is true and @allValuesSeted is false
+      data = <%= js_app_name %>.Helpers.jsonData @url()
+
+      if data?
+        @resetRelations data
+        @allValuesSeted = true
+
+  allValuesSeted: false
 
 
   toJSON: ( includeRelations = false, includeCalculated = false ) ->
@@ -148,11 +159,8 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         if newValue = @get(relation.foreignKey)
           if newValue isnt @[key].get("id")
             url  = "/#{relation.route}/#{newValue}"
-            <%= js_app_name %>.Helpers.jsonCallback(
-              url
-              (data) => @[key].set(data, {silent: true}) if data?
-              {api_template: "base"} # params
-            )
+            data = <%= js_app_name %>.Helpers.jsonData url, api_template: "base"
+            @[key].set(data, {silent: true}) if data?
 
         # clear attributes if foreignKey is null
         else @[key].clear silent: true
@@ -190,11 +198,17 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
     relation
 
-  resetRelations: (attributes) ->
+  resetRelations: (data) ->
+    # Self Attributes
+    _.each(data, (value, key) =>
+      if !@belongsTo[key]? or !@hasMany[key]?
+        @attributes[key] = data[key]
+    )
+
     # belongsTo
     _.each(@belongsTo,
       (relation, key) =>
-        values   = attributes[key]
+        values   = data[key]
         relation = @buildBelonsToRelation(relation, key)
         if values? and ( relation.isNested is true or relation.resettable is true)
           @[key] = new <%= js_app_name %>.Models[relation.model] values
@@ -202,7 +216,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     # hasMany
     _.each(@hasMany,
       (relation, key) =>
-        values = attributes[key]
+        values = data[key]
         @[key].url = "#{@collectionRoute}/#{@get('id')}/#{key}" unless @isNew()
         @[key].reset values if values?
     )
@@ -210,7 +224,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
   validates: (attrs, validates = {}) ->
     resultMessage = {}
-    messages = Modules.I18n.hash().errorsMessages
+    messages      = Modules.I18n.hash().errorsMessages
 
     # Each for attributes of the model
     _.each(attrs, (attrValue, attrKey) =>
@@ -308,6 +322,11 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
   delegates: {}
 
   removeWhenSaving: []
+
+  isResettable: ->
+    _.isEmpty(@hasMany) is false
+
+  resettableAttributes: []
 
   # Callbacks
   afterSave: {}
