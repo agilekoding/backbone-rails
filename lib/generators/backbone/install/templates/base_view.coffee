@@ -49,7 +49,6 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     e.stopPropagation()
 
     form = $(e.currentTarget)
-    return false unless @allowAction(form)
 
     options = _.extend(
       success: (model) =>
@@ -60,10 +59,12 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
       options)
 
     if @model.isValid() is true
+      return false unless @allowAction(form)
       @collection.create(@model,
         success: (model, jqXHR) =>
           window.router._editedModels = []
           @model.resetRelations(jqXHR)
+          @model.allValuesSeted = true
           model.trigger("afterSave", model, jqXHR)
           options.success(model, jqXHR)
         error: options.error
@@ -75,7 +76,6 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     e.stopPropagation()
 
     form = $(e.currentTarget)
-    return false unless @allowAction(form)
 
     options = _.extend(
       success : (model) =>
@@ -86,15 +86,22 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     options)
 
     if @model.isValid() is true
+      return false unless @allowAction(form)
       @model.save(null,
         success: (model, jqXHR) =>
           window.router._editedModels = []
           @model.resetRelations(jqXHR)
+          @model.allValuesSeted = true
           model.trigger("afterSave", model, jqXHR)
           options.success(model, jqXHR)
         error: options.error
       )
     else @renderErrors(@model, @model.errors)
+
+  # Progress bar
+  # ==========================================================
+  renderProgress: (schedule_id, callback) ->
+    <%= js_app_name %>.Helpers.renderProgress(schedule_id, callback)
 
   # Errors
   # ==========================================================
@@ -126,17 +133,25 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
         )
 
   renderPagination: (collection) ->
+    # Clear Pagination Container
+    @$("#pagination-container").html ""
+
     pagination = collection.pagination || {}
 
     if pagination.total_pages > 1
-      pagination.resources_path = collection.url
+      pagination.resources_path = pagination.path || collection.url
+      pagination.params         = $.param(pagination.params)
       pagination.pages          = []
 
       if (pagination.current_page > 1)
-        pagination.paginatePrev = (pagination.current_page - 1)
+        prevNumber               = (pagination.current_page - 1)
+        pagination.paginatePrev  = "#{pagination.resources_path}?page=#{prevNumber}"
+        pagination.paginatePrev += "&#{pagination.params}" unless (_.isEmpty pagination.params)
 
       if (pagination.current_page < pagination.total_pages)
-        pagination.paginateNext = (pagination.current_page + 1)
+        nextNumber               = (pagination.current_page + 1)
+        pagination.paginateNext  = "#{pagination.resources_path}?page=#{nextNumber}"
+        pagination.paginateNext += "&#{pagination.params}" unless (_.isEmpty pagination.params)
 
       # builder pages
       for number in [1..pagination.total_pages]
@@ -144,6 +159,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
         page.liKlass = "active" if pagination.current_page is number
         page.text    = number
         page.path    = "#{pagination.resources_path}?page=#{number}"
+        page.path   += "&#{pagination.params}" unless (_.isEmpty pagination.params)
         pagination.pages.push(page)
 
       @$("#pagination-container").html(
@@ -169,3 +185,27 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
       flashTemplate = "render_#{type}".toCamelize("lower")
       <%= js_app_name %>.Helpers[flashTemplate]? messages
 
+  # Do an ajax request
+  doAjax: (settings = {}) ->
+    <%= js_app_name %>.Helpers.ajax(settings)
+
+  # Remote Forms
+  remoteForm: (e, settings = {}) ->
+    e.preventDefault()
+    e.stopPropagation()
+
+    form = $(e.currentTarget)
+
+    url  = form.prop("action")
+
+    if url?
+      return false unless @allowAction(form)
+      type = form.prop("method")   || "GET"
+      data = form.serializeArray() || {}
+
+      if form.prop("enctype") is "multipart/form-data"
+        files =  $(":file", form)
+        settings = _.extend { files: files, iframe: true, processData: false }, settings
+
+      settings = _.extend { url: url, type: type, data: data }, settings
+      @doAjax settings
