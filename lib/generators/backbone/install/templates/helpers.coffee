@@ -49,3 +49,20 @@
 
   renderInfo: (data) ->
     $("#alerts_container").html( $("#backboneInfoAlert").tmpl(data) )
+
+  renderProgress: (schedule_id, callback) ->
+    if schedule_id?
+      $(".alert-message").remove()
+      progress = $("#progress_bar")
+
+      progress.progressbar
+        value: 0
+        complete: ->
+          clearInterval interval
+          callback?()
+
+      interval = setInterval ->
+        $.getJSON "schedules/#{schedule_id}", (data) ->
+          count = (data.progress * 100) / data.total
+          progress.progressbar "option", "value", count
+      , 1500
