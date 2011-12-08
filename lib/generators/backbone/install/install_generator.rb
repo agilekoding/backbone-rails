@@ -108,6 +108,10 @@ module Backbone
         template "config/string.coffee", "app/assets/javascripts/backbone/config/string.js.coffee"
       end
 
+      def create_base_router
+        template "base_router.coffee", "app/assets/javascripts/backbone/routers/base_router.js.coffee"
+      end
+
     end
   end
 end
