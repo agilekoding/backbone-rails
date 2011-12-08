@@ -50,12 +50,7 @@ module BackboneResponses
     protected
 
       def collection
-        if paginate?
-          resources = collection_scopes.paginate(
-            :page => (params[:page] || 1), :per_page => resources_per_page)
-        else
-          resources = collection_scopes.all
-        end
+        resources = collection_scopes.scoped
         instance_variable_set("@#{controller_name}" , resources)
       end
 
@@ -75,29 +70,8 @@ module BackboneResponses
       end
 
       def collection_public_attributes
-        model     = end_of_association_chain
-        resources = collection
-
-        if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{api_collection_template}")
-          allowed_keys = resources.collect{|o| o.as_api_response(:"#{api_collection_template}")}
-        else
-          allowed_keys = resources
-        end
-
         if paginate?
-          per_page      = resources.per_page
-          total_entries = resources.total_entries
-          total_pages   = (total_entries.to_f / per_page.to_f).ceil
-
-          resources_with_pagination = {}
-          resources_with_pagination[:resources] = allowed_keys
-          resources_with_pagination[:pagination] = {
-            :current_page  => resources.current_page,
-            :per_page      => per_page,
-            :total_entries => total_entries,
-            :total_pages   => total_pages
-          }
-          instance_variable_set("@#{controller_name}" , resources_with_pagination)
+          instance_variable_set("@#{controller_name}" , resources_with_pagination(collection))
         else
           instance_variable_set("@#{controller_name}" , allowed_keys)
         end
@@ -105,8 +79,42 @@ module BackboneResponses
 
     end
 
+    def resources_with_pagination(*args)
+      model        = end_of_association_chain
+      resources    = args.first.paginate(:page => (params[:page] || 1), :per_page => resources_per_page)
+
+      options      = args.second || {}
+      template     = options[:template] || api_collection_template
+      path         = options[:path] || ""
+      query_params = options[:params] || {}
+
+      query_params.delete(:page)
+
+      if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{template}")
+        allowed_keys = resources.as_api_response(:"#{template}")
+      else
+        allowed_keys = resources
+      end
+
+      per_page      = resources.per_page
+      total_entries = resources.total_entries
+      total_pages   = (total_entries.to_f / per_page.to_f).ceil
+
+      {
+        :resources => allowed_keys,
+        :pagination => {
+          :current_page  => resources.current_page,
+          :per_page      => per_page,
+          :total_entries => total_entries,
+          :total_pages   => total_pages,
+          :params        => query_params,
+          :path         => path
+        }
+      }
+    end
+
     def api_collection_template
-      "public"
+      params[:api_template] || "list"
     end
 
     def api_resource_template
