@@ -195,16 +195,15 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
     e.stopPropagation()
 
     form = $(e.currentTarget)
-
     url  = form.prop("action")
 
     if url?
       return false unless @allowAction(form)
-      type = form.prop("method")   || "GET"
-      data = form.serializeArray() || {}
+      type  = form.prop("method")   || "GET"
+      data  = form.serializeArray() || {}
+      files =  $(":file", form)
 
-      if form.prop("enctype") is "multipart/form-data"
-        files =  $(":file", form)
+      if form.prop("enctype") is "multipart/form-data" and files.length > 0
         settings = _.extend { files: files, iframe: true, processData: false }, settings
 
       settings = _.extend { url: url, type: type, data: data }, settings

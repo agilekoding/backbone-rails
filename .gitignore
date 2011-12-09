@@ -8,4 +8,5 @@ test/dummy/.sass-cache/
 test/tmp/**/*
 .idea/
 .rvmrc
-
+.DS_Store
+*.orig

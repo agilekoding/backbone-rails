@@ -16,6 +16,7 @@ module Backbone
         inject_into_file "app/assets/javascripts/application.js", :before => "//= require_tree" do
           [
             "//= require jquery.tmpl",
+            "//= require jquery.iframe-transport",
             "//= require underscore",
             "//= require backbone",
             "//= require backbone_rails_sync",
