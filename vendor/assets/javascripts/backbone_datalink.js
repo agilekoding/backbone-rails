@@ -50,9 +50,11 @@
         if ( _.include(list, checkboxValue) )
           el.attr("checked", true);
       } else {
-        var inputValue = _.include([true, "true", 1, "1"], el.val());
-        var booleanValue = _.include([true, "true", 1, "1"], value);
-        var shouldMarked = inputValue === booleanValue;
+        var booleanValues = [true, "true", 1, "1"];
+        var inputValue = _.include(booleanValues, el.val());
+        var booleanValue = _.include(booleanValues, value);
+        var shouldMarked = false;
+        if (inputValue === true && booleanValue === true) shouldMarked = true;
         el.attr("checked", shouldMarked)
       }
     }
@@ -82,7 +84,7 @@
       }
     }
 
-    if (inputValue === "") inputValue = null;
+    //if (inputValue === "") inputValue = null;
 
     attrs[name] = inputValue;
     nestedObject.set(attrs);
@@ -99,7 +101,7 @@
   return $.extend($.fn, {
     backboneLink: function(model) {
       var container = $(this);
-      container.find(":input").each(function() {
+      container.find(":input:not(:checkbox.children_checkbox)").each(function() {
         var el, nestedObject;
         el           = $(this);
         nestedObject = getNestedObject(el, model);
