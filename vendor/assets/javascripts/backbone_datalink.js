@@ -72,15 +72,11 @@
         inputValue = [];
         for(var i = 0, l = checkeds.length; i < l; i++){
           var checkbox = $(checkeds[i]);
-          inputValue.push(checkbox.val());
+          inputValue.push(checkbox.val());                                                                                                                                                    u
         }
       } else {
-        if ( el.is(":checked") )
-          inputValue = el.val();
-        else {
-          var checkboxName = el.attr("name");
-          inputValue = el.parent().find("input[type=\"hidden\"][name=\""+checkboxName+"\"]").val();
-        }
+        if ( el.is(":checked") ) inputValue = true;
+        else inputValue = false;
       }
     }
 
