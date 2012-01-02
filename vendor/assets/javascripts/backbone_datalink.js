@@ -71,8 +71,8 @@
         var checkeds = container.find("input[name$=\"_ids][]\"]:checkbox:checked");
         inputValue = [];
         for(var i = 0, l = checkeds.length; i < l; i++){
-          var checkbox = $(checkeds[i]);
-          inputValue.push(checkbox.val());                                                                                                                                                    u
+          var checkboxValue = $(checkeds[i]).val();
+          inputValue.push(checkboxValue);
         }
       } else {
         if ( el.is(":checked") ) inputValue = true;
