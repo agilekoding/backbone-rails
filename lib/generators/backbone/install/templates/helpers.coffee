@@ -8,15 +8,31 @@
       async: false
       dataType: "json"
       data: params
+      beforeSend: (xhr) ->
+        token = $('meta[name="csrf-token"]').attr('content')
+        xhr.setRequestHeader('X-CSRF-Token', token) if token
       success: (data, textStatus, jqXHR) -> responseDate = data
     )
     responseDate
 
   jsonCallback: (url, callback, params = {}) ->
-    $.getJSON(url, params, (data) -> callback?(data) )
+    $.ajax
+      url: url
+      dataType: "json"
+      data: params
+      beforeSend: (xhr) ->
+        token = $('meta[name="csrf-token"]').attr('content')
+        xhr.setRequestHeader('X-CSRF-Token', token) if token
+      success: callback
 
   ajax: (options = {}) ->
     return if !options.url
+
+    complete = options.complete
+    options.complete = (jqXHR, textStatus) ->
+      <%= js_app_name %>.Helpers.showSubmitted()
+
+      complete?()
 
     settings =
       type: "GET"
@@ -31,38 +47,49 @@
     $.ajax settings
 
   # Renders For Alers Messages
-  renderWarning: (data) ->
-    $("#alerts_container").html( $("#backboneWarningAlert").tmpl(data) )
+  renderWarning: (data, alertsContainer = "#alerts_container") ->
+    $(alertsContainer).prepend( $("#backboneWarningAlert").tmpl(data) )
 
-  renderError: (data) ->
-    $('.alert-message').remove()
-    container = $(".columns form:first")
+  renderError: (data, alertsContainer = false) ->
+    $('.alert-message.error').remove()
+
+    if alertsContainer is false then container = $(".columns form:first")
+    else if _.isString alertsContainer then container = $(alertsContainer)
+    else container = alertsContainer
 
     if container.offset()?
       container.prepend( $("#backboneErrorAlert").tmpl(data) )
       $('html, body').animate({ scrollTop: container.offset().top - 45 }, 'slow')
     else
-      $("#alerts_container").html( $("#backboneErrorAlert").tmpl(data) )
+      $("#alerts_container").prepend( $("#backboneErrorAlert").tmpl(data) )
 
-  renderSuccess: (data) ->
-    $("#alerts_container").html( $("#backboneSuccessAlert").tmpl(data) )
+  renderSuccess: (data, alertsContainer = "#alerts_container") ->
+    $(alertsContainer).prepend( $("#backboneSuccessAlert").tmpl(data) )
 
-  renderInfo: (data) ->
-    $("#alerts_container").html( $("#backboneInfoAlert").tmpl(data) )
+  renderInfo: (data, alertsContainer = "#alerts_container") ->
+    $(alertsContainer).prepend( $("#backboneInfoAlert").tmpl(data) )
 
   renderProgress: (schedule_id, callback) ->
     if schedule_id?
       $(".alert-message").remove()
       progress = $("#progress_bar")
+      schedule = null
 
       progress.progressbar
         value: 0
         complete: ->
           clearInterval interval
-          callback?()
+          callback?(schedule)
 
       interval = setInterval ->
         $.getJSON "schedules/#{schedule_id}", (data) ->
-          count = (data.progress * 100) / data.total
+          schedule = data
+          count    = (schedule.progress * 100) / schedule.total
           progress.progressbar "option", "value", count
       , 1500
+
+  showSubmitted: ->
+    $('.submitted').show()
+    $('.submitted').removeClass('submitted')
+
+

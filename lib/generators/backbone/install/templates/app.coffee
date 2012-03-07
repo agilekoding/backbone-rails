@@ -10,7 +10,6 @@
 #= require ./routers/base_router
 #= require_tree ./routers
 
-
 window.<%= js_app_name %> =
   Models: {}
   Collections: {}
@@ -19,6 +18,7 @@ window.<%= js_app_name %> =
   Locales: {}
   Config:
     default_locale:"es-MX"
+    locale: -> @default_locale
     flashes: ["warning", "error", "success", "info"]
 
 window.Modules = {}

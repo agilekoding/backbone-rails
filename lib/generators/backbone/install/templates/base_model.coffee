@@ -1,7 +1,25 @@
 class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
-  initialize: (attributes, options) ->
-    @calculatedAttributes = {}
+  _.extend @, Modules.Inheritance
+
+  @include Modules.Validations
+
+  constructor: (attributes = {}, options) ->
+
+    # Default Logic in the constructor of Backbone Model
+    # =========================================================
+    if defaults = @defaults
+      defaults   = defaults.call(this) if _.isFunction(defaults)
+      attributes = _.extend({}, defaults, attributes)
+
+    @attributes          = {}
+    @_escapedAttributes  = {}
+    @cid                 = _.uniqueId('c')
+    @set(attributes, {silent : true})
+    @_changed            = false
+    @_previousAttributes = _.clone(@attributes)
+    @collection = options.collection if (options && options.collection)
+    # =========================================================
 
     # Clone de original attributes
     attributes = _.extend({}, _.clone(attributes))
@@ -26,13 +44,54 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         # Create a new collection object if not exist
         unless @[key]?
           @[key] = new <%= js_app_name %>.Collections[relation.collection]
-          @[key].url = "#{@collectionRoute}/#{attributes.id}/#{key}" unless @isNew()
+          @[key].url = "#{@urlRoot}/#{attributes.id}/#{key}" unless @isNew()
 
         @[key].reset attributes[key] if attributes[key]?
     )
 
-    # Call After Initialize Callback
-    @afterInitialize()
+    @initialize(attributes, options)
+
+  calculatedAttributes: {}
+
+  save: ->
+    $('.alert-message').remove()
+    super(arguments...)
+
+  updateAttribute: (attribute, value, options = {}) ->
+    attrs            = {}
+    attrs[attribute] = value
+    return false if !@set(attrs)
+
+    data = {}
+    if @paramRoot? then data[@paramRoot] = attrs
+    else data = attrs
+
+    _.extend data, {template: "base"}
+
+    settings =
+      url    : "#{@urlRoot}/#{@get('id')}"
+      type   : "PUT"
+      data   : data
+
+    _.extend settings, options
+    <%= js_app_name %>.Helpers.ajax(settings)
+
+  updateAttributes: (attrs, options = {}) ->
+    return false if !@set(attrs)
+
+    data = {}
+    if @paramRoot? then data[@paramRoot] = attrs
+    else data = attrs
+
+    _.extend data, {template: "base"}
+
+    settings =
+      url    : "#{@urlRoot}/#{@get('id')}"
+      type   : "PUT"
+      data   : data
+
+    _.extend settings, options
+    <%= js_app_name %>.Helpers.ajax(settings)
 
   get : ( key ) ->
     that = @
@@ -41,22 +100,10 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
       value = @calculatedAttributes[key]
 
       if typeof value != 'undefined'
-        return value
+        return value()
 
     # fall back to the default backbone behavior
     super(key)
-
-  setAllValues: ->
-    resettable = if _.isFunction(@isResettable) then @isResettable() else @isResettable
-    if resettable is true and @allValuesSeted is false
-      data = <%= js_app_name %>.Helpers.jsonData @url()
-
-      if data?
-        @resetRelations data
-        @allValuesSeted = true
-
-  allValuesSeted: false
-
 
   toJSON: ( includeRelations = false, includeCalculated = false ) ->
     json = _.clone @attributes
@@ -66,7 +113,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
     if includeCalculated is true
       _.each(@calculatedAttributes, (attribute, key) =>
-        json[key] = attribute
+        json[key] = attribute(@)
       )
 
     # belongsTo
@@ -123,16 +170,6 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
     json
 
-  prepareToEdit: () ->
-    window.router._editedModels ||= []
-    index = _.indexOf(window.router._editedModels, @)
-    if index is -1
-      @_originalAttributes = _.clone( @toJSON() )
-      window.router._editedModels.push(@)
-
-  resetToOriginValues: () ->
-    @set @_originalAttributes
-
   setBelongsTo: (attributes, callbackKey) ->
     # For reload association object when foreignKey has changed
     if callbackKey?
@@ -158,8 +195,9 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
         if newValue = @get(relation.foreignKey)
           if newValue isnt @[key].get("id")
-            url  = "/#{relation.route}/#{newValue}"
-            data = <%= js_app_name %>.Helpers.jsonData url, api_template: "base"
+            url      = "/#{relation.route}/#{newValue}"
+            template = relation.template || "base"
+            data     = <%= js_app_name %>.Helpers.jsonData url, api_template: template
             @[key].set(data, {silent: true}) if data?
 
         # clear attributes if foreignKey is null
@@ -177,9 +215,9 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
       relation = @polymorphicRelation(relation, key)
 
     else
-      # If route is not defined it's taken from model collectionRoute
+      # If route is not defined it's taken from model urlRoot
       unless relation.route?
-        relation.route = <%= js_app_name %>.Models[relation.model].collectionRoute
+        relation.route = <%= js_app_name %>.Models[relation.model].urlRoot
 
       # If foreignKey is not defined it's taken from model paramRoot more "_id"
       unless relation.foreignKey?
@@ -187,18 +225,38 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
 
     relation
 
-
   polymorphicRelation: (relation, key) ->
     polymorphicType     = "#{key}_type"
     relation.foreignKey = "#{key}_id"
 
     if (modelName = @get(polymorphicType))?
-      relation.route = <%= js_app_name %>.Models[modelName].collectionRoute
+      relation.route = <%= js_app_name %>.Models[modelName].urlRoot
       relation.model = modelName
 
     relation
 
-  resetRelations: (data) ->
+  prepareToEdit: () ->
+    window.router._editedModels ||= []
+    index = _.indexOf(window.router._editedModels, @)
+    if index is -1
+      @_originalAttributes = _.clone( @toJSON() )
+      window.router._editedModels.push(@)
+
+  resetToOriginValues: () ->
+    @set @_originalAttributes
+
+  setAllValues: (url = @url()) ->
+    resettable = if _.isFunction(@isResettable) then @isResettable() else @isResettable
+    if resettable is true and @allValuesSeted is false
+      data = <%= js_app_name %>.Helpers.jsonData url
+
+      if data?
+        @resetRelations data, true
+        @allValuesSeted = true
+
+  allValuesSeted: false
+
+  resetRelations: (data, setAllValues = false) ->
     # Self Attributes
     _.each(data, (value, key) =>
       if !@belongsTo[key]? or !@hasMany[key]?
@@ -210,88 +268,25 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
       (relation, key) =>
         values   = data[key]
         relation = @buildBelonsToRelation(relation, key)
-        if values? and ( relation.isNested is true or relation.resettable is true)
+        if values? and ( relation.isNested is true or relation.resettable is true or setAllValues is true)
           @[key] = new <%= js_app_name %>.Models[relation.model] values
     )
     # hasMany
     _.each(@hasMany,
       (relation, key) =>
         values = data[key]
-        @[key].url = "#{@collectionRoute}/#{@get('id')}/#{key}" unless @isNew()
+        @[key].url = "#{@urlRoot}/#{@get('id')}/#{key}" unless @isNew()
         @[key].reset values if values?
     )
 
 
   validates: (attrs, validates = {}) ->
-    resultMessage = {}
-    messages      = Modules.I18n.hash().errorsMessages
-
-    # Each for attributes of the model
-    _.each(attrs, (attrValue, attrKey) =>
-
-      for key, validation of validates[attrKey]
-        appliedValidations = true
-        action             = validation.on
-
-        if @isNew() is true and action is "update"
-          appliedValidations = false
-
-        if @isNew() is false and action is "create"
-          appliedValidations = false
-
-        if appliedValidations is true
-
-          isEmpty = _.isEmpty( $.trim( attrValue ) )
-
-          switch key
-            when "presence"
-              if isEmpty
-                (resultMessage[attrKey] ||= []).push(messages.blank)
-
-            when "numericality"
-              if isEmpty is false and  /^\d+(\.\d+)?$/.test( attrValue ) is false
-                (resultMessage[attrKey] ||= []).push(messages.not_a_number)
-
-            when "email"
-              if isEmpty is false and  /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/.test( attrValue ) is false
-                (resultMessage[attrKey] ||= []).push(messages.invalid_email)
-
-            when "rfc"
-              if isEmpty is false and  /^([A-Z|a-z|&amp;]{3}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)(\w{2})([A-Z|a-z|0-9])$|^([A-Z|a-z]{4}\d{2}((0[1-9]|1[012])(0[1-9]|1\d|2[0-8])|(0[13456789]|1[012])(29|30)|(0[13578]|1[02])31)|([02468][048]|[13579][26])0229)((\w{2})([A-Z|a-z|0-9])){0,3}$/.test( attrValue ) is false
-                (resultMessage[attrKey] ||= []).push(messages.invalid)
-
-            when "zip_code"
-              if isEmpty is false and  /^\d{5}$/.test( attrValue ) is false
-                (resultMessage[attrKey] ||= []).push(messages.invalid)
-
-            when "length"
-              if isEmpty is false
-                min        = validation.min
-                max        = validation.max
-                attrLength = (attrValue || "").length
-
-                if (min? and attrLength < min)
-                  if min is 1 then lengthMessage = "one" else lengthMessage = "other"
-                  message = (messages.too_short?[lengthMessage] || "").replace("%{count}", min)
-                  (resultMessage[attrKey] ||= []).push(message)
-
-                else if (max? and attrLength > max)
-                  if max is 1 then lengthMessage = "one" else lengthMessage = "other"
-                  message = (messages.too_long?[lengthMessage] || "").replace("%{count}", max)
-                  (resultMessage[attrKey] ||= []).push(message)
-
-            when "equalTo"
-              unless attrValue is @get(validation)
-                message = (messages.equal_to || "").replace("%{count}", @humanAttributeName(validation))
-                (resultMessage[attrKey] ||= []).push(message)
-
-            else false
-    )
+    resultMessage = @_validates attrs, validates
 
     if _.isEmpty(resultMessage) then null
     else
       @attributes = _.extend(@attributes, attrs)
-      @errors = resultMessage
+      @errors     = resultMessage
 
   isValid: () ->
     resultValidation = @validate(@attributes) || {}
@@ -331,8 +326,6 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
   # Callbacks
   afterSave: {}
 
-  afterInitialize: () ->
-
   # I18n support
   modelName: () ->
     @paramRoot
@@ -341,4 +334,6 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     Modules.I18n.t "activerecord.models.#{@paramRoot}"
 
   humanAttributeName: (name) ->
-    Modules.I18n.t "activerecord.attributes.#{@paramRoot}.#{name}"
+    if name.split(".").length is 1
+      Modules.I18n.t "activerecord.attributes.#{@paramRoot}.#{name}"
+    else Modules.I18n.t "#{name}"

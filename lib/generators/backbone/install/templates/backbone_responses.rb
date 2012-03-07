@@ -17,9 +17,7 @@ module BackboneResponses
 
       respond_to do |format|
         format.html
-        format.json {
-          render :json => instance_variable_get("@#{controller_name}")
-        }
+        format.json { render :json => instance_variable_get("@#{controller_name}") }
       end
     end
 
@@ -50,7 +48,8 @@ module BackboneResponses
     protected
 
       def collection
-        resources = collection_scopes.scoped
+        c         = collection_scopes
+        resources = c.respond_to?(:scoped) ? c.scoped : c.all
         instance_variable_set("@#{controller_name}" , resources)
       end
 
@@ -73,7 +72,7 @@ module BackboneResponses
         if paginate?
           instance_variable_set("@#{controller_name}" , resources_with_pagination(collection))
         else
-          instance_variable_set("@#{controller_name}" , allowed_keys)
+          instance_variable_set("@#{controller_name}" , resources_without_pagination(collection))
         end
       end
 
@@ -86,7 +85,7 @@ module BackboneResponses
       options      = args.second || {}
       template     = options[:template] || api_collection_template
       path         = options[:path] || ""
-      query_params = options[:params] || {}
+      query_params = options[:params] || params #{}
 
       query_params.delete(:page)
 
@@ -111,6 +110,24 @@ module BackboneResponses
           :path         => path
         }
       }
+    end
+
+    def resources_without_pagination(*args)
+      model        = end_of_association_chain
+      resources    = args.first
+
+      options      = args.second || {}
+      template     = options[:template] || api_collection_template
+      path         = options[:path] || ""
+      query_params = options[:params] || params #{}
+
+      query_params.delete(:page)
+
+      if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{template}")
+        allowed_keys = resources.as_api_response(:"#{template}")
+      else
+        allowed_keys = resources
+      end
     end
 
     def api_collection_template

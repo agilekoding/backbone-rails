@@ -1,10 +1,11 @@
 class <%= js_app_name %>.Routers.BaseRouter extends Backbone.Router
 
+  _.extend @, Modules.Inheritance
+
+  @include Modules.I18n
+
   # Manually bind a single named route to a callback. For example:
-  #
   # @route('search/:query/p:num', 'search', (query, num) ->
-  #   ...
-  #
 
   route : (route, name, callback) ->
     Backbone.history || (Backbone.history = new Backbone.History)
@@ -20,9 +21,9 @@ class <%= js_app_name %>.Routers.BaseRouter extends Backbone.Router
         @beforeFilter()
 
         callback.apply(this, args)
-
         @trigger.apply(this, ['route:' + name].concat(args))
 
+        @renderPageTitle()
       this)
     )
 
@@ -38,19 +39,12 @@ class <%= js_app_name %>.Routers.BaseRouter extends Backbone.Router
     )
     @_editedModels = []
 
+  renderPageTitle: ->
+    title_page = $("title").text()
+    title_h1   = $.trim $('.container h1:first').text()
+    title_page = title_page.split('|')
+    $('title').text("#{title_h1} | #{title_page[1]}")
+
   resourceNotFound: ->
     @flash "warning", @t("errors.not_found")
     window.location.hash = "/index"
-
-  # I18n support
-  t: (route = "") ->
-    Modules.I18n.t route
-
-  # Falsh Messages
-  flash: (type, messages = "") ->
-    if _.include <%= js_app_name %>.Config.flashes, type
-      if _.isString messages
-        messages = {messages: [{message: messages}]}
-
-      flashTemplate = "render_#{type}".toCamelize("lower")
-      <%= js_app_name %>.Helpers[flashTemplate]? messages
