@@ -94,16 +94,10 @@ module Backbone
         template "backbone_responses.rb", "lib/backbone_responses.rb"
       end
 
-      def create_inheritance_module_file
-        template "modules/inheritance.coffee", "app/assets/javascripts/backbone/modules/inheritance.js.coffee"
-      end
-
-      def create_eip_module_file
-        template "modules/eip.coffee", "app/assets/javascripts/backbone/modules/eip.js.coffee"
-      end
-
-      def create_i18n_module_file
-        template "modules/i18n.coffee", "app/assets/javascripts/backbone/modules/i18n.js.coffee"
+      def create_module_files
+        %W{inheritance eip i18n ajax_requests number_helper pagination validations}.each do |module_name|
+          template "modules/#{module_name}.coffee", "app/assets/javascripts/backbone/modules/#{module_name}.js.coffee"
+        end
       end
 
       def create_locale_files

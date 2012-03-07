@@ -18,12 +18,16 @@ Modules.Inheritance =
 
     obj.included?.apply(@)
 
-    @::_afterInitialize  ||= []
-    @::_beforeInitialize ||= []
-    @::_beforeRemove     ||= []
+    if obj.beforeInitialize?
+      @::_beforeInitialize ||= []
+      @::_beforeInitialize.push obj.beforeInitialize
 
-    @::_beforeInitialize.push obj.beforeInitialize if obj.beforeInitialize?
-    @::_afterInitialize.push obj.afterInitialize   if obj.afterInitialize?
-    @::_beforeRemove.push obj.beforeRemove         if obj.beforeRemove?
+    if obj.afterInitialize?
+      @::_afterInitialize  ||= []
+      @::_afterInitialize.push obj.afterInitialize
+
+    if obj.beforeRemove?
+      @::_beforeRemove     ||= []
+      @::_beforeRemove.push obj.beforeRemove
 
     this

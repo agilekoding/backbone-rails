@@ -13,7 +13,6 @@ Modules.EIP = (options = {}) ->
   beforeRemove: ->
     @eipUnbindCallbacks()
 
-
   instanceMethods: () ->
 
     options.eipNodes ||= {}
@@ -60,10 +59,15 @@ Modules.EIP = (options = {}) ->
       # Print Node
       eipPrintNode: (nested_model, nodeActive = false) ->
         dom = @eipGetNodeTemplate(nested_model.paramRoot, nested_model)
+
+        @eipBeforeRenderNode(dom, nested_model)
+
         if nested_model.eip_node_dom? and nested_model.eip_node_dom.is(":visible")
           nested_model.eip_node_dom.replaceWith dom
         else
           @$("#eip-list").append dom
+          nested_model.prepareToEdit()
+          nested_model.unbind("change", @eipPrintNode, @)
           nested_model.bind("change", @eipPrintNode, @)
 
         nested_model.eip_node_dom = dom
@@ -76,8 +80,12 @@ Modules.EIP = (options = {}) ->
         dom       = @eipGetFormTemplate(nested_model.paramRoot, nested_model)
         container = @$("#eip-form")
 
+        @eipBeforeRenderForm(dom, nested_model)
+
         container.html dom.backboneLink(@model)
         $('html, body').animate({ scrollTop: container.offset().top }, 'slow')
+
+        @eipAfterRenderForm(dom, nested_model)
 
         nested_model.eip_form_dom = dom
         dom.find(".delete-eip").data('nested_model', nested_model)
@@ -119,7 +127,10 @@ Modules.EIP = (options = {}) ->
           msg = $(e.currentTarget).attr("data-confirm")
           if msg? and !confirm(msg) then return false
 
-        model_object.destroy()
+        model_object.destroy({
+          error: (model, jqXHR) =>
+            @renderErrors( model, $.parseJSON( jqXHR.responseText ) )
+        })
 
       eipRemoveNestedFromDom: (nested_model) ->
         nested_model.eip_form_dom?.remove?()
@@ -198,6 +209,11 @@ Modules.EIP = (options = {}) ->
       eipSetBtnListActive: (link) ->
         @$("#eip-buttons .eip-btn").removeClass("info")
         link.addClass("info")
+
+      eipBeforeRenderForm: ->
+      eipAfterRenderForm: ->
+
+      eipBeforeRenderNode: ->
 
 
   # Class Methods
