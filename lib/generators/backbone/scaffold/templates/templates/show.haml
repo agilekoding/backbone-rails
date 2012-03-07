@@ -1,5 +1,5 @@
 .row
-  .span16.columns
+  .span12
     .page-header
       %h1= t(".title")
       %ul.tabs
@@ -8,7 +8,7 @@
         %li= link_to t("links.destroy"), "#/index", :class => "destroy", :confirm => t("links.confirm")
 
 .row
-  .span10.columns
+  .span8
 <% attributes.each do |attribute| -%>
     %p
       %strong= <%= human_attribute_translate(attribute.name) %>
@@ -16,7 +16,7 @@
 
 <% end -%>
 
-  .span6.columns
+  .span4
     .dashboard
       .page-header
         %h3

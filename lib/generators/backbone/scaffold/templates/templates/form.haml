@@ -1,13 +1,13 @@
 .row
-  .span16.columns
+  .span12
     = form_for <%= classify_model_name %>.new, :url => "", :html => { :id => "#{form_type}_<%= singular_name %>" } do |f|
       %fieldset
 <% attributes.each do |attribute| -%>
-        .clearfix
-          = f.label :<%= attribute.name %>
-          .input
-            = f.text_field :<%= attribute.name %>, :value => "${<%= attribute.name %>}", :class => "xlarge"
+        .control-group
+          = f.label :<%= attribute.name %>, :class => "control-label"
+          .controls
+            = f.text_field :<%= attribute.name %>, :value => "${<%= attribute.name %>}", :class => "input-xlarge"
 
 <% end -%>
-        .actions
-          = f.submit t("helpers.submit.#{form_type}", :model => f.object.class.model_name.human), :class => "btn primary"
+        .form-actions
+          = f.submit t("helpers.submit.#{form_type}", :model => f.object.class.model_name.human), :class => "btn btn-primary"

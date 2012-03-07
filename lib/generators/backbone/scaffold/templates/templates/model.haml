@@ -3,6 +3,6 @@
 <% end -%>
 
 %td.links
-  = link_to t("links.show"), "#/${id}".html_safe, :class => "show"
-  = link_to t("links.edit"), "#/${id}/edit".html_safe, :class => "edit"
-  = link_to t("links.destroy"), "#/${id}/destroy".html_safe, :class => "destroy", :confirm => t("links.confirm")
+  = link_to "", "#/${id}".html_safe, :class => "icon-eye-open", :title => t("links.show"), :alt => t("links.show")
+  = link_to "", "#/${id}/edit".html_safe, :class => "icon-edit", :title => t("links.edit"), :alt => t("links.edit")
+  = link_to "", "#".html_safe, :class => "destroy icon-remove", :confirm => t("links.confirm"), :title => t("links.destroy"), :alt => t("links.destroy")
