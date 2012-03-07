@@ -17,6 +17,12 @@ module Backbone
           [
             "//= require jquery.tmpl",
             "//= require jquery.iframe-transport",
+            "//= require lib/jquery.ak.tools",
+            "//= require lib/jquery.livequery",
+            "//= require lib/jquery.maskedinput-1.3",
+            "//= require lib/jshashtable-2.1",
+            "//= require lib/jquery.numberformatter-1.2",
+            "//= require lib/jquery.formatting.tmpl",
             "//= require underscore",
             "//= require backbone",
             "//= require backbone_rails_sync",
