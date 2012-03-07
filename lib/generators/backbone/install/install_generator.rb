@@ -46,8 +46,26 @@ module Backbone
             "  content_tag(:script, :type => \"text/template\", :id => id) do",
             "    render :partial => partial, :locals => locals",
             "  end",
-            "end\n"
+            "end\n",
+            "",
+            "def title_page",
+            "  '#{application_name}'",
+            "end"
           ].join("\n  ")
+        end
+      end
+
+      def inject_in_gemfile
+        append_file "Gemfile" do
+          [
+            "",
+            "# Gems used for rails-backbone",
+            "gem 'inherited_resources'",
+            "gem 'will_paginate', '~> 3.0'",
+            "gem 'acts_as_api'",
+            "gem 'haml-rails'",
+            "gem 'less-rails-bootstrap'"
+          ].join("\n")
         end
       end
 
