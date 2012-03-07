@@ -1,11 +1,7 @@
 class <%= router_namespace %>Router extends <%= js_app_name %>.Routers.BaseRouter
   initialize: (options) ->
     @<%= plural_model_name %> = new <%= collection_namespace %>Collection()
-
-    if options.<%= plural_model_name %>.pagination?
-      @<%= plural_model_name %>.reset options.<%= plural_model_name %>.resources
-      @<%= plural_model_name %>.pagination = options.<%= plural_model_name %>.pagination
-    else @<%= plural_model_name %>.reset options.<%= plural_model_name %>
+    @<%= plural_model_name %>.reset options.<%= plural_model_name %>
 
   routes:
     "/new"      : "new<%= class_name %>"

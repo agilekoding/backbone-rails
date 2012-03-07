@@ -18,5 +18,5 @@ class <%= model_namespace %> extends <%= js_app_name %>.Models.BaseModel
   @urlRoot   : '<%= plural_name %>'
 
 class <%= collection_namespace %>Collection extends <%= js_app_name %>.Collections.BaseCollection
-  model: <%= model_namespace %>
-  url: '<%= route_url %>'
+  model : <%= model_namespace %>
+  url   : '<%= route_url %>'

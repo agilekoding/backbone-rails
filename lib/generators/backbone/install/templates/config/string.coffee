@@ -12,3 +12,10 @@ String.prototype.toCamelize = (type) ->
     else value
 
   value
+
+String.prototype.supplant = (o) ->
+  @replace(/\%{([^{}]*)}/g,
+    (a, b) ->
+      r = o[b]
+      if (typeof r is 'string' || typeof r is 'number') then r else a
+  )
