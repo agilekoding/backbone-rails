@@ -64,7 +64,7 @@ module Backbone
             "gem 'will_paginate', '~> 3.0'",
             "gem 'acts_as_api'",
             "gem 'haml-rails'",
-            "gem 'less-rails-bootstrap'"
+            "gem 'bootstrap-sass', '~> 2.0.1' :group => :assets"
           ].join("\n")
         end
       end
