@@ -35,6 +35,7 @@
       el.val(value)
 
     if ( el.is("select") )
+      el.find("option[selected]").attr('selected', false);
       el.find("option[value=\""+value+"\"]").attr('selected', true);
 
     if ( el.is("input:radio") ){
