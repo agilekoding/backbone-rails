@@ -34,9 +34,17 @@
     if ( el.is("input:text") )
       el.val(value)
 
-    if ( el.is("select") )
-      el.find("option[selected]").attr('selected', false);
-      el.find("option[value=\""+value+"\"]").attr('selected', true);
+    if ( el.is("select") ) {
+      // SELECT MULTIPLE
+      if ( _.isArray(value) ){
+        _.each(value, function(v){
+          el.find("option[value=\""+v+"\"]").attr('selected', true);
+        });
+      } else {
+        el.find("option[selected]").attr('selected', false);
+        el.find("option[value=\""+value+"\"]").attr('selected', true);
+      }
+    }
 
     if ( el.is("input:radio") ){
       var radioName = el.attr("name");
