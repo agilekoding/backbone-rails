@@ -170,7 +170,7 @@ Modules.EIP = (options = {}) ->
           # Functions
           @[functionName] = (e) ->
             e.preventDefault()
-            @eipGetCollection(key).add()
+            @eipGetCollection(key).add() if @eipBeforeAddNested() is true
         )
 
       # Bind Add Callback For Collections
@@ -214,6 +214,8 @@ Modules.EIP = (options = {}) ->
       eipAfterRenderForm: ->
 
       eipBeforeRenderNode: ->
+
+      eipBeforeAddNested: -> true
 
 
   # Class Methods
