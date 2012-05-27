@@ -56,6 +56,8 @@
       if ( /_ids$/.test(name) ) {
         var list = (value === null || value === undefined) ? [] : value;
         var checkboxValue = parseInt(el.val(), 10);
+
+        for(var i = 0, l = list.length; i < l; i++) { list[i] = parseInt(list[i], 10); }
         if ( _.include(list, checkboxValue) )
           el.attr("checked", true);
       } else {
