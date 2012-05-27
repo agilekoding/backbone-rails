@@ -82,7 +82,7 @@
         var checkeds = container.find("input[name$=\"_ids][]\"]:checkbox:checked");
         inputValue = [];
         for(var i = 0, l = checkeds.length; i < l; i++){
-          var checkboxValue = $(checkeds[i]).val();
+          var checkboxValue = parseInt($(checkeds[i]).val(), 10);
           inputValue.push(checkboxValue);
         }
       } else {
