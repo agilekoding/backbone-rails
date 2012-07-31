@@ -29,6 +29,15 @@
     odd: "debe ser un número non"
     invalid_email: "no es una dirección de correo electrónico válida"
 
+  helpers:
+    booleans:
+      "true": "Sí"
+      "false": "No"
+    new:
+      success: "%{model_name} se guardo exitosamente"
+    edit:
+      success: "%{model_name} se actualizo exitosamente"
+
   activerecord:
     models: {} # Human Model Name
 

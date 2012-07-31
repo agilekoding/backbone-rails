@@ -1,0 +1,37 @@
+es-MX:
+
+  links:
+    back: 'Regresar'
+    new: 'Agregar'
+    show: "Ver"
+    edit: "Editar"
+    add: "Añadir"
+    destroy: "Eliminar"
+    confirm: "¿Estás seguro?"
+    close: "Close"
+    delete: "Borrar"
+    submit: "Enviar"
+    load: "Cargar"
+    update: "Actualizar"
+    refresh: "Actualizar"
+    calculate: "Calcular"
+    download: "Descargar"
+    search: "Buscar"
+    Log_out: "Salir"
+
+  icons:
+    plus: "Agregar"
+    remove: "Eliminar"
+    arrow-left: "Izquierda"
+    arrow-right: "Derecha"
+    chevron-down: "Abajo"
+    download-alt: "Descargar"
+
+  helpers:
+    submit:
+      new: "Crear %{model}"
+      edit: "Actualizar %{model}"
+    booleans:
+      "true": "Sí"
+      "false": "No"
+

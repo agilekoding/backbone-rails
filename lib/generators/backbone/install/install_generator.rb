@@ -144,6 +144,10 @@ module Backbone
         end
       end
 
+      def create_backbone_locales
+        template "config/locales/backbone-MX.yml", "config/locales/backbone-MX.yml"
+      end
+
     end
   end
 end
