@@ -11,12 +11,12 @@ class <%= router_namespace %>Router extends <%= js_app_name %>.Routers.BaseRoute
     ".*"        : "index"
 
   new<%= class_name %>: ->
-    @new_view = new <%= "#{view_namespace}.NewView(collection: @#{plural_model_name})" %>
-    $("#<%= plural_name %>").html(@new_view.render().el)
+    @new<%= class_name %>View = new <%= "#{view_namespace}.NewView(collection: @#{plural_model_name})" %>
+    $("#<%= plural_name %>").html(@new<%= class_name %>View.render().el)
 
   index: ->
-    @index_view = new <%= "#{view_namespace}.IndexView(#{plural_model_name}: @#{plural_model_name})" %>
-    $("#<%= plural_name %>").html(@index_view.render().el)
+    @indexView = new <%= "#{view_namespace}.IndexView(#{plural_model_name}: @#{plural_model_name})" %>
+    $("#<%= plural_name %>").html(@indexView.render().el)
 
   show: (id) ->
     <%= singular_name %> = @<%= plural_model_name %>.get(id)
@@ -24,8 +24,8 @@ class <%= router_namespace %>Router extends <%= js_app_name %>.Routers.BaseRoute
     if <%= singular_name %>?
       <%= singular_name %>.setAllValues()
 
-      @show_view = new <%= "#{view_namespace}.ShowView(model: #{singular_name})" %>
-      $("#<%= plural_name %>").html(@show_view.render().el)
+      @showView = new <%= "#{view_namespace}.ShowView(model: #{singular_name})" %>
+      $("#<%= plural_name %>").html(@showView.render().el)
     else @resourceNotFound()
 
   edit: (id) ->
@@ -34,6 +34,6 @@ class <%= router_namespace %>Router extends <%= js_app_name %>.Routers.BaseRoute
     if <%= singular_name %>?
       <%= singular_name %>.setAllValues()
 
-      @edit_view = new <%= "#{view_namespace}.EditView(model: #{singular_name})" %>
-      $("#<%= plural_name %>").html(@edit_view.render().el)
+      @editView = new <%= "#{view_namespace}.EditView(model: #{singular_name})" %>
+      $("#<%= plural_name %>").html(@editView.render().el)
     else @resourceNotFound()

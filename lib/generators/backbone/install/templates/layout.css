@@ -1,4 +1,30 @@
 @import "bootstrap";
 
+.page-header {
+  h1 {
+    display: inline;
+  }
+  .tabs {
+    float: right;
+    width: auto;
+    border: none;
+    list-style: none outside none;
+    margin: 0 !important;
+  }
+}
+
+.tabs li {
+  display: inline;
+}
+
+.tabs li a {
+  font-family: Arial;
+  font-size:11px;
+  text-decoration: none;
+  float:left;
+  padding: 10px;
+  color: #000;
+}
+
 .hidden{  display: none; }
 

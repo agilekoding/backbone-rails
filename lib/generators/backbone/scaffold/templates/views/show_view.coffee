@@ -9,8 +9,11 @@ class <%= view_namespace %>.ShowView extends <%= js_app_name %>.Views.BaseView
     )
 
   render: ->
-    $(@el).html( @template( @model.toJSON(true) ) )
+    $(@el).html( @template( @model.toJSON(true, true) ) )
     return this
 
   destroy: (e) ->
     super(e, success: () -> window.location.hash = "")
+
+  remove: ->
+    super()

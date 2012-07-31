@@ -13,7 +13,7 @@ class <%= view_namespace %>.EditView extends <%= js_app_name %>.Views.BaseView
     )
 
   render: ->
-    $(@el).html( @template( @model.toJSON(true) ) )
+    $(@el).html( @template( @model.toJSON(true, true) ) )
     this.$("form#edit_<%= singular_name %>").backboneLink(@model)
     return this
 

@@ -15,6 +15,8 @@ module Backbone
       def inject_backbone
         inject_into_file "app/assets/javascripts/application.js", :before => "//= require_tree" do
           [
+            "",
+            "// The necessary libraries are loaded",
             "//= require jquery.tmpl",
             "//= require jquery.iframe-transport",
             "//= require lib/jquery.ak.tools",
@@ -23,11 +25,17 @@ module Backbone
             "//= require lib/jshashtable-2.1",
             "//= require lib/jquery.numberformatter-1.2",
             "//= require lib/jquery.formatting.tmpl",
+            "",
+            "// Loads backbone files",
             "//= require underscore",
             "//= require backbone",
             "//= require backbone_rails_sync",
             "//= require backbone_datalink",
-            "//= require backbone/#{application_name.underscore}\n"
+            "//= require backbone/#{application_name.underscore}",
+            "",
+            "// Loads all Bootstrap javascripts",
+            "//= require bootstrap",
+            "\n"
           ].join("\n")
         end
       end
