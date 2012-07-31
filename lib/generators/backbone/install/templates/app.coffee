@@ -12,6 +12,7 @@
 
 window.<%= js_app_name %> =
   Models: {}
+  Modules: {}
   Collections: {}
   Routers: {}
   Views: {}

@@ -22,26 +22,29 @@ module BackboneResponses
     end
 
     def update
-      update! do |format|
-        format.json do
-          render :json => resource_public_attributes
-        end
+      update! do |success, failure|
+        success.json { render :json => resource_public_attributes }
+        failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
       end
     end
 
     def create
-      create! do |format|
-        format.json do
-          render :json => resource_public_attributes
-        end
+      create! do |success, failure|
+        success.json { render :json => resource_public_attributes }
+        failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
       end
     end
 
     def show
       respond_to do |format|
-        format.json do
-          render :json => resource_public_attributes
-        end
+        format.json { render :json => resource_public_attributes }
+      end
+    end
+
+    def destroy
+      destroy! do |success, failure|
+        success.json { render :json => {} }
+        failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
       end
     end
 
