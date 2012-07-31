@@ -47,8 +47,14 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
       link = $(e.currentTarget)
       return false unless @allowAction(link)
 
+      options = _.extend(
+        success: () => @remove()
+        error: (model, jqXHR) =>
+          @renderErrors( model, $.parseJSON( jqXHR.responseText ) )
+
+        options)
+
       @model.destroy(options)
-      @remove()
 
   save: (e, options = {}) ->
     e.preventDefault()
@@ -75,6 +81,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
           _model.allValuesSeted = true
           model.trigger("afterSave", model, jqXHR)
           options.success(model, jqXHR)
+          @flash "success", @t("helpers.new.success", model_name: _model.humanName())
         error: options.error
 
       if !(_model.collection?) and @collection?
@@ -107,6 +114,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
           _model.allValuesSeted = true
           model.trigger("afterSave", model, jqXHR)
           options.success(model, jqXHR)
+          @flash "success", @t("helpers.edit.success", model_name: _model.humanName())
         error: options.error
       )
     else @renderErrors(_model, _model.errors)
@@ -161,7 +169,7 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
         trigger_object  = $(e.currentTarget)
         waiting         = trigger_object.is(".disabled")
 
-        disabled_object = $("a[href=\"#\"], input[type=\"submit\"].btn")
+        disabled_object = $("a[href=\"#\"]:not(.disabled), input[type=\"submit\"].btn:not(.disabled)")
 
         if waiting then e.preventDefault()
         else

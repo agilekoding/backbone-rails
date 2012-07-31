@@ -2,8 +2,8 @@ class <%= js_app_name %>.Collections.BaseCollection extends Backbone.Collection
 
   # The JSON representation of a Collection is an array of the
   # models' attributes.
-  toJSON : (includeRelations = false) ->
-    @map( (model) -> model.toJSON(includeRelations) )
+  toJSON : (includeRelations = false, includeCalculated = false) ->
+    @map( (model) -> model.toJSON(includeRelations, includeCalculated) )
 
   # When you have more items than you want to add or remove individually,
   # you can reset the entire set with a new list of models, without firing
@@ -17,3 +17,4 @@ class <%= js_app_name %>.Collections.BaseCollection extends Backbone.Collection
     @add models, silent: true
     @trigger('reset', this, options) if (!options.silent)
     this
+

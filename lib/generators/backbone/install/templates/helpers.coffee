@@ -51,9 +51,9 @@
     $(alertsContainer).prepend( $("#backboneWarningAlert").tmpl(data) )
 
   renderError: (data, alertsContainer = false) ->
-    $('.alert-message.error').remove()
+    $('.alert-error').remove()
 
-    if alertsContainer is false then container = $(".columns form:first")
+    if alertsContainer is false then container = $(".container form:first")
     else if _.isString alertsContainer then container = $(alertsContainer)
     else container = alertsContainer
 
@@ -91,5 +91,3 @@
   showSubmitted: ->
     $('.submitted').show()
     $('.submitted').removeClass('submitted')
-
-

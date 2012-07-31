@@ -30,8 +30,8 @@ class <%= js_app_name %>.Routers.BaseRouter extends Backbone.Router
   beforeFilter: ->
 
   removeViews: (name) ->
-    @["#{name}_view"].remove() if @["#{name}_view"]? # index_view
-    @["#{name}View"].remove()  if @["#{name}View"]?  # customNameView
+    @["#{name}View"]?.remove()   # indexView
+    true
 
   resetModelsWithoutSaving: () ->
     _.each(@_editedModels, (model) ->
@@ -45,6 +45,6 @@ class <%= js_app_name %>.Routers.BaseRouter extends Backbone.Router
     title_page = title_page.split('|')
     $('title').text("#{title_h1} | #{title_page[1]}")
 
-  resourceNotFound: ->
-    @flash "warning", @t("errors.not_found")
-    window.location.hash = "/index"
+  resourceNotFound: (url = "/index", showFlash = true) ->
+    @flash "warning", @t("errors.not_found") if showFlash
+    window.location.hash = url

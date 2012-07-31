@@ -105,6 +105,8 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     # fall back to the default backbone behavior
     super(key)
 
+  backboneCid: -> "backboneCid_#{@cid}"
+
   toJSON: ( includeRelations = false, includeCalculated = false ) ->
     json = _.clone @attributes
 
@@ -125,13 +127,13 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         if includeRelations is false
           if @[key]? and relation.isNested is true
             if relation.isPolymorphic isnt true
-              json["#{key}_attributes"] = @[key].toJSON(includeRelations)
+              json["#{key}_attributes"] = @[key].toJSON(includeRelations, includeCalculated)
 
           delete json[key]
 
         # include all values to use in Show view for example
         else if @[key]?
-          json[key] = @[key].toJSON(includeRelations)
+          json[key] = @[key].toJSON(includeRelations, includeCalculated)
 
           # include delegates
           delegate = @delegates[key] || {}
@@ -148,12 +150,12 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         if includeRelations is false
 
           if @[key]? and relation.isNested is true
-            json["#{key}_attributes"] = @[key].toJSON(includeRelations)
+            json["#{key}_attributes"] = @[key].toJSON(includeRelations, includeCalculated)
 
           delete json[key]
 
         else if @[key]?
-          json[key] = @[key].toJSON(includeRelations)
+          json[key] = @[key].toJSON(includeRelations, includeCalculated)
     )
 
     # Attributes that are eliminated are not part of the model
@@ -198,7 +200,8 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
             url      = "/#{relation.route}/#{newValue}"
             template = relation.template || "base"
             data     = <%= js_app_name %>.Helpers.jsonData url, api_template: template
-            @[key].set(data, {silent: true}) if data?
+            #@[key].set(data, {silent: true}) if data?
+            @[key].resetRelations data
 
         # clear attributes if foreignKey is null
         else @[key].clear silent: true
