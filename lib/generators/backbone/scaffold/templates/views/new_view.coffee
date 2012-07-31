@@ -1,6 +1,6 @@
 <%= view_namespace %> ||= {}
 
-class <%= view_namespace %>.NewView extends <%= js_app_name %>.Views.BaseView
+class <%= view_namespace %>.NewView extends <%= view_namespace %>.FormView
   template: (data) -> $("#<%= tmpl 'new' %>").tmpl(data)
 
   initialize: (options) ->

@@ -29,6 +29,10 @@ module Backbone
         template "index.haml", File.join(backbone_tmpl_path, plural_name, "index.html.haml")
       end
 
+      def create_form_view
+        template "views/form_view.coffee", File.join(backbone_path, "views", plural_name, "00_form_view.js.coffee")
+      end
+
       def create_rails_controller
         template "controller.rb", File.join(controllers_path, "#{plural_name}_controller.rb")
       end

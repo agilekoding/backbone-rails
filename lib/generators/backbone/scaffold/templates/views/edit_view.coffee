@@ -1,6 +1,6 @@
 <%= view_namespace %> ||= {}
 
-class <%= view_namespace %>.EditView extends <%= js_app_name %>.Views.BaseView
+class <%= view_namespace %>.EditView extends <%= view_namespace %>.FormView
   template: (data) -> $("#<%= tmpl 'edit' %>").tmpl(data)
 
   initialize: ->
