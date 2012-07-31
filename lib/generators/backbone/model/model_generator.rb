@@ -19,6 +19,21 @@ module Backbone
         generate "model #{name} #{attrs}"
       end
 
+      def create_api_model
+        template "api_model.rb", "app/representations/api_v1/#{file_name}.rb"
+      end
+
+      def inject_in_rails_model
+        inject_into_file "app/models/#{file_name}.rb", :before => "end" do
+          [
+            "",
+            "  acts_as_api",
+            "  include ApiV1::#{class_name}",
+            "\n"
+          ].join("\n")
+        end
+      end
+
     end
   end
 end

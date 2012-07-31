@@ -64,7 +64,7 @@ module Backbone
             "gem 'will_paginate', '~> 3.0'",
             "gem 'acts_as_api'",
             "gem 'haml-rails'",
-            "gem 'bootstrap-sass', '~> 2.0.1' :group => :assets"
+            "gem 'bootstrap-sass', '~> 2.0.1', :group => :assets"
           ].join("\n")
         end
       end
@@ -124,6 +124,11 @@ module Backbone
 
       def create_base_router
         template "base_router.coffee", "app/assets/javascripts/backbone/routers/base_router.js.coffee"
+      end
+
+      def create_representation_dir
+        empty_directory "app/representations/"
+        empty_directory "app/representations/api_v1"
       end
 
     end
