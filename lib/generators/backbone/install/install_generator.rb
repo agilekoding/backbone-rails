@@ -131,6 +131,19 @@ module Backbone
         empty_directory "app/representations/api_v1"
       end
 
+      def create_layout_stylesheet
+        template "layout.css", "app/assets/stylesheets/layout.css.scss"
+      end
+
+      def inject_in_application_css
+        inject_into_file "app/assets/stylesheets/application.css", :before => "*= require_self" do
+          [
+            "*= require layout",
+            " "
+          ].join("\n")
+        end
+      end
+
     end
   end
 end
