@@ -97,15 +97,10 @@ module Backbone
       end
 
       def create_dir_backbone_alerts
-        empty_directory "app/views/backbone_alerts"
-        template "alerts/_error_alert.haml", "app/views/backbone_alerts/_error_alert.html.haml"
-        template "alerts/_info_alert.haml", "app/views/backbone_alerts/_info_alert.html.haml"
-        template "alerts/_success_alert.haml", "app/views/backbone_alerts/_success_alert.html.haml"
-        template "alerts/_warning_alert.haml", "app/views/backbone_alerts/_warning_alert.html.haml"
-      end
-
-      def create_pagination_template
-        template "alerts/_pagination.haml", "app/views/backbone_alerts/_pagination.html.haml"
+        empty_directory "app/views/backbone_templates"
+        %w{error_alert info_alert success_alert warning_alert modal_form pagination}.each do |template_name|
+          template "backbone_templates/_#{template_name}.haml", "app/views/backbone_templates/_#{template_name}.html.haml"
+        end
       end
 
       def create_backbone_responses
@@ -113,7 +108,7 @@ module Backbone
       end
 
       def create_module_files
-        %W{inheritance eip i18n ajax_requests number_helper pagination validations}.each do |module_name|
+        %W{inheritance eip i18n ajax_requests number_helper pagination validations fill_dropbox modal_form}.each do |module_name|
           template "modules/#{module_name}.coffee", "app/assets/javascripts/backbone/modules/#{module_name}.js.coffee"
         end
       end

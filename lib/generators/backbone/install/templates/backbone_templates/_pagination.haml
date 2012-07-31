@@ -5,7 +5,7 @@
 
       {{if paginatePrev}}
       %li.prev
-        = link_to t('will_paginate.previous'), '${resources_path}?page=${paginatePrev}'
+        = link_to t('will_paginate.previous'), '${paginatePrev}'
       {{else}}
       %li.prev.disabled
         = link_to t('will_paginate.previous'), '#'
@@ -18,9 +18,8 @@
 
       {{if paginateNext}}
       %li.next
-        = link_to t('will_paginate.next'), '${resources_path}?page=${paginateNext}'
+        = link_to t('will_paginate.next'), '${paginateNext}'
       {{else}}
       %li.next.disabled
         = link_to t('will_paginate.next'), '#'
       {{/if}}
-
