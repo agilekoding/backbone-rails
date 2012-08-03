@@ -1,5 +1,21 @@
 @import "bootstrap";
 
+.login {
+  h2.logo {
+    background: url(image_path('logo.png')) no-repeat scroll center 0 transparent;
+    text-indent: -9999px;
+    width: 192px;
+    height: 50px;
+    margin: 0px auto 15px;
+  }
+
+  .gray_square {
+    input[type=email], input[type=password] {
+      width: 97%;
+    }
+  }
+}
+
 .page-header {
   h1 {
     display: inline;
@@ -26,5 +42,31 @@
   color: #000;
 }
 
+.navbar .brand {
+  color: white;
+}
+
+.navbar .nav > li > form > a {
+    color: #999999;
+    float: none;
+    line-height: 19px;
+    padding: 10px 10px 11px;
+    text-decoration: none;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    display: block;
+}
+
+.navbar .nav > li > form {
+  margin: 0;
+}
+
 .hidden{  display: none; }
 
+body {
+  padding-top: 60px;
+}
+
+.modal{
+  margin: -250px 0 0 -500px;
+  width: 1000px;
+}
