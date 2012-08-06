@@ -1,4 +1,4 @@
-Modules.FillDropbox =
+Modules.FillSelect =
 
   # Callbacks
   # ==========================================================
@@ -10,7 +10,7 @@ Modules.FillDropbox =
 
   instanceMethods:
 
-    fill_dropbox: (options) ->
+    fill_select: (options) ->
       return if !options.url or !options.target
 
       findTarget.call(this, options)

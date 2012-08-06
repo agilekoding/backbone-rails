@@ -116,7 +116,7 @@ module Backbone
       end
 
       def create_module_files
-        %W{inheritance eip i18n ajax_requests number_helper pagination validations fill_dropbox modal_form}.each do |module_name|
+        %W{inheritance eip i18n ajax_requests number_helper pagination validations fill_select modal_form}.each do |module_name|
           template "modules/#{module_name}.coffee", "app/assets/javascripts/backbone/modules/#{module_name}.js.coffee"
         end
       end
