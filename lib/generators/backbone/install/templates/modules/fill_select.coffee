@@ -45,8 +45,10 @@ renderOptions = (options, data) ->
   options.resources  ||= "resources"
 
   target.append newOption("", @t("select.prompt"))
+  resources = data[options.resources] || data
+  resources = [] unless _.isArray(resources)
 
-  for resource in (data[options.resources] || [])
+  for resource in resources
     value = getValue(options, resource)
     name  = getName(options, resource)
     target.append newOption(value, name)
