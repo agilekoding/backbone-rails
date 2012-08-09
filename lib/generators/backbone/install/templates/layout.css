@@ -60,6 +60,11 @@
   margin: 0;
 }
 
+th.actions{
+  width: 50px;
+  text-align: right;
+}
+
 .hidden{  display: none; }
 
 body {

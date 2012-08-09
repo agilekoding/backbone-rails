@@ -8,9 +8,12 @@ class <%= view_namespace %>.IndexView extends <%= js_app_name %>.Views.BaseView
     @options.<%= plural_model_name %>.bind('reset', @addAll)
 
   events:
-    _.extend( _.clone(@__super__.events),
-     {}
-    )
+    _.extend _.clone(@__super__.events),
+      "click #refresh_<%= plural_name %>" : "refresh<%= plural_name.camelize %>"
+
+  refresh<%= plural_name.camelize %>: (e) ->
+    e.preventDefault()
+    @options.<%= plural_model_name %>.fetch()
 
   addAll: () ->
     @$("#<%= plural_name %>_table tbody").empty()

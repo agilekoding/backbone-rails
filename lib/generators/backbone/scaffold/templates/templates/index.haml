@@ -14,7 +14,9 @@
 <% attributes.each do |attribute| -%>
           %th= <%= human_attribute_translate(attribute.name) %>
 <% end -%>
-          %th
+          %th.actions
+            = link_to "", "#", :class => "icon-refresh", :id => "refresh_<%= plural_name %>", :title => t("links.refresh"), :alt => t("links.refresh")
+
       %tbody
 
 #pagination-container
