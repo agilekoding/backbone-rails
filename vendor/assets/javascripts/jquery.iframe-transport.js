@@ -146,6 +146,10 @@
           appendTo(form);
       });
 
+      // Add a hidden '_method' field to form
+      $("<input type='hidden'>").attr({name: "_method", value: options.type}).
+          appendTo(form);
+
       // Add a hidden `X-Requested-With` field with the value `IFrame` to the
       // field, to help server-side code to determine that the upload happened
       // through this transport.
