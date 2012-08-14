@@ -30,7 +30,7 @@ module Backbone
       end
 
       def create_form_view
-        template "views/form_view.coffee", File.join(backbone_path, "views", plural_name, "00_form_view.js.coffee")
+        template "views/form_view.coffee", File.join(backbone_path, "views", plural_name, "_form_view.js.coffee")
       end
 
       def create_rails_controller

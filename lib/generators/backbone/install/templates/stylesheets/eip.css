@@ -1,0 +1,99 @@
+// EIP
+#eip-container {
+  margin:10px 10px 0;
+  padding-bottom:65px;
+  & > .row {
+    margin: 10px 0;
+  }
+}
+
+#eip-buttons {
+  margin: 10px 10px 0;
+  position: fixed;
+  bottom: 0;
+  .right {
+    float: right;
+  }
+}
+
+@mixin eip-box-container {
+  float: left;
+  background-color: white;
+  cursor: pointer;
+  height: 21px;
+  margin: 9px 9px 0;
+  padding: 8px;
+  width: 100px;
+}
+
+#eip-add {
+  @include eip-box-container;
+  border: 1px dashed #CCCCCC;
+  position: relative;
+
+  .plus {
+    float: left;
+    width:21px;
+    height: 21px;
+    padding: 0 4px;
+    background: transparent image-url('addPlus.gif') no-repeat 0 0;
+  }
+  .i {
+    top: 4px;
+    position: absolute;
+  }
+  .text {
+    position: absolute;
+    top:0px;
+    left:25px;
+    overflow: hidden;
+
+    p{
+      margin: 0;
+      padding: 9px 0;
+    }
+  }
+}
+
+#eip-list .active {
+  border-color: rgba(82, 168, 236, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) inset, 0 0 8px rgba(82, 168, 236, 0.6);
+  outline: medium none;
+}
+
+.eip-node {
+  @include eip-box-container;
+  position: relative;
+  border: 1px solid #CCC;
+  .text {
+    position: absolute;
+    float: left;
+    overflow: hidden;
+    top:0;
+    width:70%;
+    height:100%;
+  }
+  .popover {
+    position: absolute;
+    left:-85px;
+    top:40px;
+  }
+  .eip-delete-node {
+    display: none;
+    float:left;
+    position: absolute;
+    top:5px;
+    right:5px;
+    width:16px;
+    height:16px;
+    text-indent: -9999px;
+    z-index: 10;
+  }
+  &:hover .popover {
+    display: block;
+  }
+  &:hover .eip-delete-node {
+    display: block;
+  }
+
+}

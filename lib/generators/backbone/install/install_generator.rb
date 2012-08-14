@@ -139,16 +139,24 @@ module Backbone
         empty_directory "app/representations/api_v1"
       end
 
-      def create_layout_stylesheet
-        template "layout.css", "app/assets/stylesheets/layout.css.scss"
+      def create_dir_for_stylesheets_by_controller
+        empty_directory "app/assets/stylesheets/controllers"
+      end
+
+      def create_stylesheets
+        %w{layout eip}.each do |template_name|
+          template "stylesheets/#{template_name}.css", "app/assets/stylesheets/#{template_name}.css.scss"
+        end
       end
 
       def inject_in_application_css
         inject_into_file "app/assets/stylesheets/application.css", :before => "*= require_self" do
           [
+            "*= require eip",
             "*= require layout",
-            " "
-          ].join("\n")
+            "*= require_tree ./controllers",
+            "\n "
+          ].join("\n ")
         end
       end
 
