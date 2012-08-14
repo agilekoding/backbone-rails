@@ -23,6 +23,11 @@ module BackboneResponses
 
     def update
       update! do |success, failure|
+        # HTML
+        success.html { render :inline => render_textarea }
+        failure.html { render :inline => render_textarea_with_errors }
+
+        # JSON
         success.json { render :json => resource_public_attributes }
         failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
       end
@@ -30,6 +35,11 @@ module BackboneResponses
 
     def create
       create! do |success, failure|
+        # HTML
+        success.html { render :inline => render_textarea }
+        failure.html { render :inline => render_textarea_with_errors }
+
+        # JSON
         success.json { render :json => resource_public_attributes }
         failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
       end
@@ -60,11 +70,17 @@ module BackboneResponses
         end_of_association_chain
       end
 
+      def responds_to_template? model, template
+        model.respond_to?(:acts_as_api?) and
+        model.acts_as_api? and
+        model.respond_to?(:"api_accessible_#{template}")
+      end
+
       def resource_public_attributes
         model  = end_of_association_chain
         object = reload_resource ? resource.reload : resource
 
-        if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{api_resource_template}")
+        if responds_to_template? model, api_resource_template
           object.as_api_response(:"#{api_resource_template}")
         else
           object
@@ -92,7 +108,7 @@ module BackboneResponses
 
       query_params.delete(:page)
 
-      if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{template}")
+      if responds_to_template? model, template
         allowed_keys = resources.as_api_response(:"#{template}")
       else
         allowed_keys = resources
@@ -126,7 +142,7 @@ module BackboneResponses
 
       query_params.delete(:page)
 
-      if model.respond_to?(:acts_as_api?) and model.acts_as_api? and model.respond_to?(:"api_accessible_#{template}")
+      if responds_to_template? model, template
         allowed_keys = resources.as_api_response(:"#{template}")
       else
         allowed_keys = resources
@@ -151,6 +167,18 @@ module BackboneResponses
 
     def reload_resource
       false
+    end
+
+    def render_textarea
+      %{<textarea data-type="application/json">
+         {"ok": true, "resource": #{resource_public_attributes.to_json.html_safe}}
+       </textarea>}.squish
+    end
+
+    def render_textarea_with_errors
+      %{<textarea data-type="application/json">
+         {"ok": false, "errors": #{resource.errors.to_json.html_safe}}
+       </textarea>}.squish
     end
 
 end

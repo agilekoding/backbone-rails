@@ -264,6 +264,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     _.each(data, (value, key) =>
       if !@belongsTo[key]? or !@hasMany[key]?
         @attributes[key] = data[key]
+        @id = data[key] if key is "id"
     )
 
     # belongsTo

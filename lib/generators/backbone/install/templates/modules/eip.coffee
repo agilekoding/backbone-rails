@@ -129,7 +129,7 @@ Modules.EIP = (options = {}) ->
 
         model_object.destroy({
           error: (model, jqXHR) =>
-            @renderErrors( model, $.parseJSON( jqXHR.responseText ) )
+            @renderErrors(model, $.parseJSON(jqXHR.responseText).errors)
         })
 
       eipRemoveNestedFromDom: (nested_model) ->

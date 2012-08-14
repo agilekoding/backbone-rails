@@ -32,7 +32,7 @@
     options.complete = (jqXHR, textStatus) ->
       <%= js_app_name %>.Helpers.showSubmitted()
 
-      complete?()
+      complete?(jqXHR, textStatus)
 
     settings =
       type: "GET"
