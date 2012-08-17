@@ -40,13 +40,13 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     )
     # hasMany
     _.each(@hasMany, (relation, key) =>
-      if relation.collection?
-        # Create a new collection object if not exist
-        unless @[key]?
-          @[key] = new <%= js_app_name %>.Collections[relation.collection]
-          @[key].url = "#{@urlRoot}/#{attributes.id}/#{key}" unless @isNew()
+      relation.collection ||= "#{key.toCamelize()}Collection"
+      # Create a new collection object if not exist
+      unless @[key]?
+        @[key] = new <%= js_app_name %>.Collections[relation.collection]
+        @[key].url = "#{@urlRoot}/#{attributes.id}/#{key}" unless @isNew()
 
-        @[key].reset attributes[key] if attributes[key]?
+      @[key].reset attributes[key] if attributes[key]?
     )
 
     @initialize(attributes, options)

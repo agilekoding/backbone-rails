@@ -58,7 +58,7 @@ Modules.EIP = (options = {}) ->
 
       # Print Node
       eipPrintNode: (nested_model, nodeActive = false) ->
-        dom = @eipGetNodeTemplate(nested_model.paramRoot, nested_model)
+        dom = @eipGetNodeTemplate(nested_model)
 
         @eipBeforeRenderNode(dom, nested_model)
 
@@ -77,7 +77,7 @@ Modules.EIP = (options = {}) ->
 
       # Print Form
       eipPrintForm: (nested_model) ->
-        dom       = @eipGetFormTemplate(nested_model.paramRoot, nested_model)
+        dom       = @eipGetFormTemplate(nested_model)
         container = @$("#eip-form")
 
         @eipBeforeRenderForm(dom, nested_model)
@@ -138,20 +138,30 @@ Modules.EIP = (options = {}) ->
 
       # Get Templates For EIP
       # ================================================================
-      eipGetNodeTemplate: (nodeName, nested_model) ->
-        templateName = "#{nodeName}_template".toCamelize()
-        @["eipNode#{templateName}"](nested_model.toJSON(true))
+      eipGetNodeTemplate: (nested_model) ->
+        templateName = "#{nested_model.paramRoot}_template".toCamelize()
 
-      eipGetFormTemplate: (nodeName, nested_model) ->
-        templateName = "#{nodeName}_template".toCamelize()
-        @["eipForm#{templateName}"](nested_model.toJSON(true))
+        if _.isFunction(@["eipNode#{templateName}"])
+          @["eipNode#{templateName}"](nested_model.toJSON(true))
+        else
+          templateName = "#{nested_model.urlRoot}_template".toCamelize()
+          @["eipNode#{templateName}"](nested_model.toJSON(true))
+
+      eipGetFormTemplate: (nested_model) ->
+        templateName = "#{nested_model.paramRoot}_template".toCamelize()
+
+        if _.isFunction(@["eipForm#{templateName}"])
+          @["eipForm#{templateName}"](nested_model.toJSON(true))
+        else
+          templateName = "#{nested_model.urlRoot}_template".toCamelize()
+          @["eipForm#{templateName}"](nested_model.toJSON(true))
 
       eipGetListTemplate: (nodeName) ->
         templateName = "#{nodeName}_template".toCamelize()
         @["eipList#{templateName}"]()
 
       eipGetCollection: (nodeName) ->
-        collection = @eipNodes[nodeName].collection
+        collection = @eipNodes[nodeName].collection || nodeName
         @model[collection]
 
 

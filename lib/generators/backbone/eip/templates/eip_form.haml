@@ -1,0 +1,12 @@
+= form.fields_for :<%= @eip_plural_name %>, :child_index => "${<%= @eip_singular_name %>_cid}" do |f|
+
+  %fieldset
+    .row
+      .span12
+<% attributes.each do |attribute| -%>
+        .control-group
+          = f.label :<%= attribute.name %>, :class => "control-label"
+          .controls
+            = f.text_field :<%= attribute.name %>, :class => "input-xlarge"
+
+<% end -%>

@@ -9,5 +9,9 @@
             = f.text_field :<%= attribute.name %>, :class => "input-xlarge"
 
 <% end -%>
-        .form-actions
-          = f.submit t("helpers.submit.#{form_type}", :model => f.object.class.model_name.human), :class => "btn btn-primary"
+      .row
+        #eip-container.span12
+
+      .row
+        #eip-buttons.span12.well
+          = f.submit t("helpers.submit.#{form_type}", :model => f.object.class.model_name.human), :class => "btn btn-primary right"
