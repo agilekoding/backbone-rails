@@ -98,13 +98,13 @@ module BackboneResponses
     end
 
     def resources_with_pagination(*args)
-      model        = end_of_association_chain
       resources    = args.first.paginate(:page => (params[:page] || 1), :per_page => resources_per_page)
 
       options      = args.second || {}
       template     = options[:template] || api_collection_template
       path         = options[:path] || ""
       query_params = options[:params] || params #{}
+      model        = options[:model] || end_of_association_chain
 
       query_params.delete(:page)
 
@@ -132,13 +132,13 @@ module BackboneResponses
     end
 
     def resources_without_pagination(*args)
-      model        = end_of_association_chain
       resources    = args.first
 
       options      = args.second || {}
       template     = options[:template] || api_collection_template
       path         = options[:path] || ""
       query_params = options[:params] || params #{}
+      model        = options[:model] || end_of_association_chain
 
       query_params.delete(:page)
 
