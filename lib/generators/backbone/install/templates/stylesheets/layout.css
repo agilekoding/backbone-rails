@@ -61,8 +61,35 @@
 }
 
 th.actions{
-  width: 50px;
+  width: 70px;
   text-align: right;
+}
+
+.icon-list-container{
+   position: relative;
+
+    &:hover{
+      .icon-image{ background-position: -288px -120px; }
+      ul{ display: block; }
+    }
+
+  .icon-image{
+    background-position: -313px -119px;
+    cursor: pointer;
+    z-index: 1;
+
+  }
+
+  ul{
+    display: none;
+    margin-top: 14px;
+    padding: 5px 25px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 2;
+  }
+
 }
 
 .hidden{  display: none; }
