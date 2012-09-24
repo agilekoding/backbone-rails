@@ -27,24 +27,30 @@ Modules.ModalForm = (options = {}) ->
 # Private Methods
 # ================================================================
 addDataToggleAttribute = ->
-  _this   = this
+  _this = this
 
   for key, value of @modalFormOptions
     $target = $("#modal_form_container")
     success = _this[value["success"]]
+    klass   = value["link"]
+    modals  = $target.data("modals") || []
 
-    bindShowCallback.call(this, $target, value["view"], value["link"], success)
-    bindHiddenCallback.call(this, $target, value["link"])
-    bindClickEvent.call(this, $target, value["link"])
+    unless _.include(modals, klass)
+      modals.push(klass)
+      $target.data("modals", modals)
+
+      bindShowCallback.call(this, $target, value["view"], klass, success)
+      bindHiddenCallback.call(this, $target, klass)
+      bindClickEvent.call(this, $target, klass)
 
 bindClickEvent = (target, klass) ->
-  $("body").on "click", klass, (e) ->
+  $("body").on "click.my_modal", klass, (e) ->
     e.preventDefault()
     $this   = $(this)
     option  = if target.data('modal') then 'toggle' else {}
 
-    target.data "current_class", klass
-    target.data "modal_data", $this.data()
+    target.data("current_class", klass)
+    target.data("modal_data", $this.data())
     target.modal(option)
 
 bindShowCallback = (target, view, klass, callback) ->
@@ -55,9 +61,9 @@ bindShowCallback = (target, view, klass, callback) ->
         target.data("modal_data")
 
       @modal_form_view = new view(options)
-      $("#modal_form_container .modal-body").html @modal_form_view.render().el
+      $("#modal_form_container .modal-body").html(@modal_form_view.render().el)
 
-  target.on "show", showFunction
+  target.on("show", showFunction)
 
 bindHiddenCallback = (target, klass) ->
   hiddenFunction = =>
@@ -65,4 +71,4 @@ bindHiddenCallback = (target, klass) ->
       @modal_form_view.remove()
       @modal_form_view = null
 
-  target.on "hidden", hiddenFunction
+  target.on("hidden", hiddenFunction)
