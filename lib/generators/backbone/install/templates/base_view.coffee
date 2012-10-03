@@ -42,19 +42,26 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
 
   destroy: (e, options = {}) ->
     e.preventDefault()
+    return false unless model = options.model || @model
 
-    if @model?
-      link = $(e.currentTarget)
+    link = $(e.currentTarget)
+
+    unless model.isNew()
       return false unless @allowAction(link)
 
-      options = _.extend(
-        success: () => @remove()
+      options = _.extend
+        success: => @remove?()
         error: (model, jqXHR) =>
-          @renderErrors(model, $.parseJSON(jqXHR.responseText).errors)
+          data = $.parseJSON(jqXHR.responseText)
+          @renderErrors( model, (data.error || data.errors) )
 
-        options)
+        options
 
-      @model.destroy(options)
+      model.destroy(options)
+
+    else
+      model.destroy()
+      @remove?()
 
   save: (e, options = {}) ->
     e.preventDefault()
