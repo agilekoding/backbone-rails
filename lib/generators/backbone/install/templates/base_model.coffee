@@ -165,6 +165,9 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         delete json[value]
       )
 
+      # Type attribute is removed because are used by rails for inheritance
+      delete json["type"]
+
       # Attributes with null value are eliminated
       for _key, _value of json
         if _value is null and @hasChanged(_key) is false
