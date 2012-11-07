@@ -105,11 +105,12 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
   # Errors
   # ==========================================================
   renderErrors: (model, errors, alertsContainer = false) ->
-    alertsContainer = false if _.isEmpty alertsContainer
+    alertsContainer = false if _.isEmpty(alertsContainer)
+    errors          = { base: errors } if _.isString(errors)
     fullErrors      = {}
 
-    if errors?
-      _.each(errors, (messages, key) =>
+    unless _.isEmpty(errors)
+      _.each errors, (messages, key) =>
         if model?
           name = model.humanAttributeName(key)
         else
@@ -122,12 +123,13 @@ class <%= js_app_name %>.Views.BaseView extends Backbone.View
           for message in messages
             name = "" if name is "base"
             (fullErrors.messages ||= []).push({name: name, message: message})
-      )
-    else
+
+    unless errors?
       alertsContainer ||= "#alerts_container"
       (fullErrors.messages ||= []).push({name: "", message: @t("errors.default")})
 
-    <%= js_app_name %>.Helpers.renderError(fullErrors, alertsContainer)
+    unless _.isEmpty(fullErrors)
+      <%= js_app_name %>.Helpers.renderError(fullErrors, alertsContainer)
 
   # Remove Callbacks in beforeRemove() function if needed
   # ==========================================================
