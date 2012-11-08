@@ -127,7 +127,9 @@ module Backbone
       end
 
       def create_config_files
-        template "config/string.coffee", "app/assets/javascripts/backbone/config/string.js.coffee"
+        %W{string date}.each do |name|
+          template "config/#{name}.coffee", "app/assets/javascripts/backbone/config/#{name}.js.coffee"
+        end
       end
 
       def create_base_router
