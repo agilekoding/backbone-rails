@@ -11,20 +11,21 @@ module Backbone
       argument :attributes, :type => :array, :default => [], :banner => "field:type field:type"
 
       def create_backbone_model
-        template "model.coffee", "#{backbone_path}/models/#{file_name}.js.coffee"
+        template "model.coffee", "#{backbone_path}/models/#{file_path}.js.coffee"
       end
 
       def create_rails_model
         attrs = attributes.collect{|a| "#{a.name}:#{a.type}" }.join(" ")
-        generate "model #{name} #{attrs}"
+        generate "model #{class_name} #{attrs}"
       end
 
       def create_api_model
-        template "api_model.rb", "app/representations/api_v1/#{file_name}.rb"
+        puts "test #{file_path}"
+        template "api_model.rb", "app/representations/api_v1/#{file_path}.rb"
       end
 
       def inject_in_rails_model
-        inject_into_file "app/models/#{file_name}.rb", :before => "end" do
+        inject_into_file "app/models/#{file_path}.rb", :before => "end" do
           [
             "",
             "  acts_as_api",

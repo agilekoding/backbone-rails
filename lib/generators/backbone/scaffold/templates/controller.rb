@@ -1,4 +1,4 @@
-class <%= plural_name.camelize %>Controller < InheritedResources::Base
+class <%= controller_class_name %>Controller < InheritedResources::Base
   include BackboneResponses
 
   respond_to :json

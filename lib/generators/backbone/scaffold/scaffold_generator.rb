@@ -1,8 +1,10 @@
 require 'generators/backbone/model/model_generator'
+require 'generators/backbone/resource_helpers'
 
 module Backbone
   module Generators
     class ScaffoldGenerator < ModelGenerator
+      include Backbone::Generators::ResourceHelpers
 
       source_root File.expand_path("../templates", __FILE__)
       desc "This generator creates the client side crud scaffolding"
@@ -19,22 +21,22 @@ module Backbone
 
       def create_view_files
         available_views.each do |view|
-          template "views/#{view}_view.coffee", File.join(backbone_path, "views", plural_name, "#{view}_view.js.coffee")
-          template "templates/#{view}.haml", File.join(backbone_tmpl_path, plural_name, "_#{view}.html.haml")
+          template "views/#{view}_view.coffee", File.join(backbone_path, "views", class_path, plural_name, "#{view}_view.js.coffee")
+          template "templates/#{view}.haml", File.join(backbone_tmpl_path, class_path, plural_name, "_#{view}.html.haml")
         end
 
-        template "views/model_view.coffee", File.join(backbone_path, "views", plural_name, "#{singular_name}_view.js.coffee")
-        template "templates/model.haml", File.join(backbone_tmpl_path, plural_name, "_#{singular_name}.html.haml")
-        template "templates/form.haml", File.join(backbone_tmpl_path, plural_name, "_form.html.haml")
-        template "index.haml", File.join(backbone_tmpl_path, plural_name, "index.html.haml")
+        template "views/model_view.coffee", File.join(backbone_path, "views", class_path, plural_name, "#{singular_name}_view.js.coffee")
+        template "templates/model.haml", File.join(backbone_tmpl_path, class_path, plural_name, "_#{singular_name}.html.haml")
+        template "templates/form.haml", File.join(backbone_tmpl_path, class_path, plural_name, "_form.html.haml")
+        template "index.haml", File.join(backbone_tmpl_path, class_path, plural_name, "index.html.haml")
       end
 
       def create_form_view
-        template "views/form_view.coffee", File.join(backbone_path, "views", plural_name, "_form_view.js.coffee")
+        template "views/form_view.coffee", File.join(backbone_path, "views", class_path, plural_name, "_form_view.js.coffee")
       end
 
       def create_rails_controller
-        template "controller.rb", File.join(controllers_path, "#{plural_name}_controller.rb")
+        template "controller.rb", File.join(controllers_path, class_path, "#{plural_name}_controller.rb")
       end
 
       protected

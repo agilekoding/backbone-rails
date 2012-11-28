@@ -4,15 +4,15 @@ class <%= router_namespace %>Router extends <%= js_app_name %>.Routers.BaseRoute
     @<%= plural_model_name %>.reset options.<%= plural_model_name %>
 
   routes:
-    "/new"      : "new<%= class_name %>"
+    "/new"      : "new"
     "/index"    : "index"
     "/:id/edit" : "edit"
     "/:id"      : "show"
     ".*"        : "index"
 
-  new<%= class_name %>: ->
-    @new<%= class_name %>View = new <%= "#{view_namespace}.NewView(collection: @#{plural_model_name})" %>
-    $("#<%= plural_name %>").html(@new<%= class_name %>View.render().el)
+  new: ->
+    @newView = new <%= "#{view_namespace}.NewView(collection: @#{plural_model_name})" %>
+    $("#<%= plural_name %>").html(@new<%= backbone_class_name %>View.render().el)
 
   index: ->
     @indexView = new <%= "#{view_namespace}.IndexView(#{plural_model_name}: @#{plural_model_name})" %>
