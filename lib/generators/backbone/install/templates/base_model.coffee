@@ -326,7 +326,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
   removeWhenSaving: []
 
   isResettable: ->
-    _.isEmpty(@hasMany) is false
+    _.isEmpty(@hasMany) is false or _.isEmpty(@belongsTo) is false
 
   resettableAttributes: []
 
