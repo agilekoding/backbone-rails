@@ -52,11 +52,17 @@ module BackboneResponses
     end
 
     def destroy
-      destroy! do |success, failure|
-        success.json { render :json => {} }
-        failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
+      begin
+        destroy! do |success, failure|
+          success.json { render :json => {} }
+          failure.json { render :json => { :errors => resource.errors }, :status => :unprocessable_entity }
+        end
+
+      rescue => e
+        render :json => { :error => e.message }, :status => :unprocessable_entity
       end
     end
+
 
     protected
 
