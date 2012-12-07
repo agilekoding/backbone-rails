@@ -10,11 +10,12 @@ Modules.FillSelect =
 
   instanceMethods:
 
-    fill_select: (options) ->
+    fill_select: (options, reset = true) ->
       return if !options.url or !options.target
 
       findTarget.call(this, options)
-      resetDependentLists(options)
+      setDataTargetToSelect(options.select, options.target)
+      resetDependentLists(options) if reset
 
       if isValidUrl(options.url)
 
@@ -51,7 +52,9 @@ renderOptions = (options, data) ->
   for resource in resources
     value = getValue(options, resource)
     name  = getName(options, resource)
-    target.append newOption(value, name)
+    target.append(newOption(value, name))
+
+  setSelectedOption(options) if options.model?
 
 newOption = (value, name) ->
   $("<option />").val(value).text(name)
@@ -70,19 +73,24 @@ getName = (options, resource) ->
     data = data[name]
   data
 
+setDataTargetToSelect = (select, target) ->
+  select.data("target", target) unless select.data("target")?
+
 resetDependentLists = (options) ->
   current = options.select
   run     = true
 
-  current.data("target", options.target) unless current.data("target")?
-
   while run
-    current = resetTargetSelect(current)
+    current = resetTargetSelect(current, options.model)
     run     = false unless current?
 
-resetTargetSelect = (current) ->
+resetTargetSelect = (current, model) ->
   target = current.data("target")
-  target.empty() if target?
+
+  if target?
+    resetTargetModel(target, model) if model?
+    target.empty()
+
   target
 
 isValidUrl = (url) ->
@@ -93,3 +101,43 @@ findTarget = (options) ->
   if _.isString(options.target)
     options.target = @$(options.target)
   options
+
+resetTargetModel = (target, model) ->
+  nestedModel   = getNestedModel(target, model)
+  attributeName = getNestedAttributeName(target, model)
+
+  attrs  = {}
+  attrs[attributeName] = ""
+  nestedModel.set(attrs, {silent: true})
+
+setSelectedOption = (options) ->
+  nestedModel   = getNestedModel(options.target, options.model)
+  attributeName = getNestedAttributeName(options.target, options.model)
+
+  value  = nestedModel.get(attributeName)
+  option = options.target.find("option[value=\"#{value}\"]")
+  option.attr("selected", "selected")
+
+getNestedAttributeName = (target, model) ->
+  selectName  = target.attr("name").replace("[]", "")
+  nestedNames = selectName.split("[")
+  nestedNames[nestedNames.length - 1].replace("]", "")
+
+getNestedModel = (target, model) ->
+  selectName   = target.attr("name")
+  nestedNames  = selectName.split("[")
+  nestedObject = null
+
+  for nestedName in nestedNames
+    nestedName   = nestedName.replace("]", "")
+    nestedObject ||= model
+
+    if (/^.+_attributes$/.test(nestedName))
+      nestedName   = nestedName.replace("_attributes", "")
+      nestedObject = nestedObject[nestedName]
+
+    else if (/^backboneCid_.+$/.test(nestedName))
+      nestedName   = nestedName.replace("backboneCid_", "")
+      nestedObject = nestedObject.getByCid(nestedName)
+
+  nestedObject
