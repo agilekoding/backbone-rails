@@ -56,8 +56,9 @@ bindClickEvent = (target, klass) ->
 bindShowCallback = (target, view, klass, callback) ->
   showFunction = =>
     if target.data("current_class") is klass
-      options = _.extend
-        modal_success: _.bind(callback, this)
+      callback = _.bind(callback, this) if callback?
+      options  = _.extend
+        modal_success: callback
         target.data("modal_data")
 
       @modal_form_view = new view(options)
