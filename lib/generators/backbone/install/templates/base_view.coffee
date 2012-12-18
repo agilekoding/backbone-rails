@@ -203,7 +203,7 @@ save_with_files = (form, _model, files, form_type, options) ->
         save_model.call(this, _model, form_type, data.resource)
         add_to_collection.call(this, _model) if form_type is "new"
         success.call(this, _model, data.resource)
-        show_success_message.call this, _model, form_type
+        show_success_message.call(this, _model, form_type, options)
       else error.call(this, _model, data.errors, form)
 
     options)
@@ -219,7 +219,7 @@ save_without_files = (form, _model, form_type, options) ->
     success: (model, jqXHR) =>
       save_model.call(this, _model, form_type, jqXHR)
       success.call(this, _model, jqXHR)
-      show_success_message.call this, _model, form_type
+      show_success_message.call(this, _model, form_type, options)
     error: (model, jqXHR) =>
       errors = $.parseJSON(jqXHR.responseText).errors
       error.call(this, model, errors, form)
@@ -254,9 +254,12 @@ save_model = (model, type, resource) ->
 
 add_to_collection = (_model) -> @collection.add(_model)
 
-show_success_message = (_model, type) ->
-  attrs = model_name: _model.humanName()
-  @flash "success", @t("helpers.#{type}.success", attrs)
+show_success_message = (_model, type, options) ->
+  unless options.message?
+    attrs = model_name: _model.humanName()
+    options.message = @t("helpers.#{type}.success", attrs)
+
+  @flash("success", options.message)
 
 getUrl = (model) ->
   if _.isFunction(model.url) then model.url() else model.url
