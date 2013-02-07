@@ -76,10 +76,9 @@ module BackboneResponses
         end_of_association_chain
       end
 
-      def responds_to_template? model, template
-        model.respond_to?(:acts_as_api?) and
-        model.acts_as_api? and
-        model.respond_to?(:"api_accessible_#{template}")
+      def responds_to_template?(model, template)
+        model.acts_as_api? rescue false and
+        model.send(:"api_accessible_#{template}?") rescue false
       end
 
       def resource_public_attributes
