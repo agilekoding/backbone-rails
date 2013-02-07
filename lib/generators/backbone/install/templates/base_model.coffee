@@ -69,7 +69,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     _.extend data, {template: "base"}
 
     settings =
-      url    : "#{@urlRoot}/#{@get('id')}"
+      url    : options.url || "#{@urlRoot}/#{@get('id')}"
       type   : "PUT"
       data   : data
 
@@ -86,7 +86,7 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
     _.extend data, {template: "base"}
 
     settings =
-      url    : "#{@urlRoot}/#{@get('id')}"
+      url    : options.url || "#{@urlRoot}/#{@get('id')}"
       type   : "PUT"
       data   : data
 
