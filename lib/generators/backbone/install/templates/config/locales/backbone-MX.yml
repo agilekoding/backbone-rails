@@ -35,3 +35,6 @@ es-MX:
       "true": "Sí"
       "false": "No"
 
+  will_paginate:
+    previous: 'Anterior'
+    next: 'Siguiente'
