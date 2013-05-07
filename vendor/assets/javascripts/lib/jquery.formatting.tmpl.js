@@ -34,6 +34,10 @@
 
       'format_boolean': {
           open: '_.push(TmplCustomFormats.format_boolean($1));'
+      },
+
+      'format_text_area': {
+          open: '_.push(TmplCustomFormats.format_text_area($1));'
       }
 
   });
@@ -78,6 +82,10 @@
   TmplCustomFormats.format_boolean = function(value){
     value = value == true;
     return Modules.I18n.t("helpers.booleans." + value);
+  }
+
+  TmplCustomFormats.format_text_area = function(value){
+    return value.replace(/\n/g, "<br />");
   }
 
 
