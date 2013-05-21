@@ -85,6 +85,7 @@
   }
 
   TmplCustomFormats.format_text_area = function(value){
+    if (value == null) value = "";
     return value.replace(/\n/g, "<br />");
   }
 
