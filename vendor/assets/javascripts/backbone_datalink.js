@@ -79,7 +79,7 @@
     if ( el.is("input:checkbox") ) {
       // HABTM
       if ( /_ids$/.test(name) ) {
-        var checkeds = container.find("input[name$=\"_ids][]\"]:checkbox:checked");
+        var checkeds = container.find("input[name$=\"" + name + "][]\"]:checkbox:checked");
         inputValue = [];
         for(var i = 0, l = checkeds.length; i < l; i++){
           var checkboxValue = parseInt($(checkeds[i]).val(), 10);

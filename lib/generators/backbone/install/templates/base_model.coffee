@@ -150,7 +150,8 @@ class <%= js_app_name %>.Models.BaseModel extends Backbone.Model
         if includeRelations is false
 
           if @[key]? and relation.isNested is true
-            json["#{key}_attributes"] = @[key].toJSON(includeRelations, includeCalculated)
+            if @[key].length > 0
+              json["#{key}_attributes"] = @[key].toJSON(includeRelations, includeCalculated)
 
           delete json[key]
 
