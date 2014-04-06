@@ -21,7 +21,7 @@
         nestedObject = nestedObject[value];
       } else if ( /^backboneCid_.+$/.test(value) ) {
         value = value.replace("backboneCid_", "");
-        nestedObject = nestedObject.getByCid(value);
+        nestedObject = nestedObject.get(value);
       }
     }
     return nestedObject;
